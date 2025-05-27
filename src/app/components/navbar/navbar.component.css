@@ -1,0 +1,120 @@
+.navbar-superior {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: black;
+    color: white;
+    padding: 0.8rem 1rem;
+  }
+  
+  .logo {
+    font-weight: bold;
+    font-size: 1.3rem;
+  }
+  
+
+  .iconos {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+  }
+  .iconos a {
+    color: white;
+    flex-direction: column;
+  text-decoration: none;
+  margin-left: 1rem;
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  position: relative;
+  }
+  
+  .contador {
+    position: absolute;
+    top: -6px;
+    right: -10px;
+    background: red;
+    color: white;
+    font-size: 0.75rem;
+    padding: 2px 6px;
+    border-radius: 999px;
+  }
+  
+  .navbar-inferior {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    background-color: #111;
+    padding: 0.5rem 0;
+  }
+  
+  .navbar-inferior a {
+    color: white;
+    text-decoration: none;
+    font-size: 0.9rem;
+  }
+  
+  .carrito-sidebar {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 320px;
+    height: 100%;
+    background: white;
+    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.2);
+    padding: 1rem;
+    z-index: 1000;
+    transition: transform 0.3s ease;
+  }
+  
+  .carrito-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 1rem;
+  }
+  
+
+  .dropdown {
+    position: relative;
+  }
+  
+  .dropdown-toggle {
+    cursor: pointer;
+    color: white;
+    text-decoration: none;
+  }
+  
+  .dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: #111;
+    padding: 1rem;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(100px, 1fr));
+    gap: 0.5rem;
+    z-index: 10;
+  }
+  
+  .dropdown-menu a {
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.9rem;
+  }
+  
+
+  /* Estilo general para los links del navbar inferior */
+.navbar-inferior a,
+.navbar-inferior .dropdown-toggle {
+  color: white;
+  text-decoration: none;
+  font-size: 0.9rem;     /* ← mismo tamaño */
+  font-weight: normal;   /* ← mismo grosor */
+  font-family: inherit;  /* ← misma fuente */
+  padding: 0 0.5rem;
+  cursor: pointer;
+}

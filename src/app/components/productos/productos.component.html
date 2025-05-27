@@ -1,0 +1,13 @@
+
+<h2>Productos disponibles</h2>
+
+<div *ngFor="let producto of productos" class="producto">
+  <p><strong>{{ producto.nombre }}</strong></p>
+  <p>Precio: ${{ producto.precio }}</p>
+
+  <p *ngIf="producto.stock <= 3" style="color: red;">
+    ¡Últimas unidades!
+  </p>
+
+  <button>Agregar al carrito</button>
+</div>

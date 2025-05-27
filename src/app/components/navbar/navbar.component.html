@@ -1,0 +1,41 @@
+<!-- Fila 1: logo + iconos -->
+<div class="navbar-superior">
+    <div class="logo">ECOMMERCEGB</div>
+  
+    <div class="iconos">
+      <a routerLink="/cuenta">👤</a>
+      <a (click)="mostrarCarrito = true">🛒 <span class="contador">{{ cantidadEnCarrito }}</span></a>
+    </div>
+  </div>
+  
+  <!-- Fila 2: menú horizontal -->
+  <div class="navbar-inferior">
+    <a routerLink="/">Inicio</a>
+    <div class="dropdown">
+        <span class="dropdown-toggle" (click)="toggleCategorias()">Productos ▼</span>
+        <div class="dropdown-menu" *ngIf="mostrarCategorias">
+          <a routerLink="/categoria/ver-todo">Ver todo</a>
+          <a routerLink="/categoria/blazers">Blazers</a>
+          <a routerLink="/categoria/pantalones">Pantalones</a>
+          <a routerLink="/categoria/sacos">Sacos</a>
+          <a routerLink="/categoria/sweater">Sweater</a>
+          <a routerLink="/categoria/remeras">Remeras</a>
+          <a routerLink="/categoria/camisas">Camisas</a>
+          <a routerLink="/categoria/mono">Mono</a>
+          <a routerLink="/categoria/blusa">Blusa</a>
+        </div>
+      </div>
+    <a routerLink="/contacto">Contacto</a>
+  </div>
+  
+  <!-- Sidebar del carrito (oculto por defecto) -->
+  <div class="carrito-sidebar" *ngIf="mostrarCarrito">
+    <div class="carrito-header">
+      <h3>Carrito de Compras</h3>
+      <button (click)="mostrarCarrito = false">✖</button>
+    </div>
+  
+    <!-- Por ahora placeholder -->
+    <p>(Acá irán los productos del carrito)</p>
+  </div>
+  
