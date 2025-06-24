@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../config/db'); // Asegurate de que esta ruta sea correcta
+const db = require('../config/db'); 
 
 // Ruta para registrar una factura
 router.post('/', async (req, res) => {
@@ -41,7 +41,6 @@ router.post('/', async (req, res) => {
   }
 });
 
-// Obtener todas las facturas (con JOIN al detalle opcional)
 router.get('/', async (req, res) => {
   try {
     const [facturas] = await db.query(`

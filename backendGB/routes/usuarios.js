@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../config/db'); // tu conexión MySQL
+const db = require('../config/db');
 
 router.post('/', async (req, res) => {
   const { email, password, rol } = req.body;

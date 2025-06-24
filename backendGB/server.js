@@ -23,11 +23,11 @@ app.use('/api/login', loginRouter);
 
 // Ruta de prueba
 app.get('/', (req, res) => {
-  res.send('✅ Backend funcionando correctamente');
+  res.send('Backend funcionando correctamente');
 });
 
 // Levantar servidor
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
-  console.log(`🚀 Servidor corriendo en puerto ${PORT}`);
+  console.log(`Servidor corriendo en puerto ${PORT}`);
 });
