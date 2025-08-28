@@ -1,0 +1,54 @@
+<h2 class="titulo">Productos disponibles</h2>
+
+<!-- Input de búsqueda -->
+<div class="buscador">
+  <input
+    type="text"
+    [(ngModel)]="filtro"
+    placeholder="🔍 Buscar producto..."
+    class="form-control"
+  />
+</div>
+
+<div class="grid-productos">
+  <!-- El pipe  -->
+  <div class="tarjeta" *ngFor="let producto of productos | filtroNombre:filtro">
+    <img [src]="producto.imagen" [alt]="producto.nombre" class="imagen-producto" />
+
+    <!-- Solo visible si es admin -->
+    <div class="botones-abm" *ngIf="usuarioActual?.rol === 'admin'">
+      <a [routerLink]="['/editar-producto', producto.id]" class="btn-editar">✏️ Editar</a>
+      <button (click)="confirmarEliminar(producto.id)" class="btn-eliminar">🗑️ Eliminar</button>
+    </div>
+
+    <div class="contenido-tarjeta">
+      <h3>{{ producto.nombre }}</h3>
+      <p class="precio">$ {{ producto.precio | number: '1.0-2' }}</p>
+
+      <div *ngIf="producto.stock < 3" class="ultimas-unidades">
+        ¡Últimas unidades!
+      </div>
+
+      <button (click)="agregarAlCarrito(producto)" class="btn-agregar">
+        Añadir al carrito
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de confirmación de carrito -->
+<div class="modal-confirmacion" *ngIf="mostrarConfirmacion">
+  ✅ <strong>{{ productoAgregado }}</strong> fue agregado al carrito
+</div>
+
+<!-- Modal de confirmación de eliminación -->
+<div class="modal-overlay" *ngIf="mostrarModalEliminar">
+  <div class="modal-contenido">
+    <h3>¿Eliminar producto?</h3>
+    <p>¿Estás seguro de que querés eliminar este producto?</p>
+    <div class="modal-botones">
+      <button (click)="eliminarConfirmado()" class="btn-confirmar">Sí, eliminar</button>
+      <button (click)="cancelarEliminar()" class="btn-cancelar">Cancelar</button>
+    </div>
+  </div>
+</div>

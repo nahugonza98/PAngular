@@ -1,0 +1,26 @@
+<div class="login-container">
+  <h2>🔐 Iniciar sesión</h2>
+
+  <form [formGroup]="formulario" (ngSubmit)="iniciarSesion()">
+    <label for="email">Email:</label>
+    <input id="email" type="email" formControlName="email" />
+    <div *ngIf="campoInvalido('email')" class="error">
+      ⚠️ Ingresá un email válido
+    </div>
+
+    <label for="password">Contraseña:</label>
+    <input id="password" type="password" formControlName="password" />
+    <div *ngIf="campoInvalido('password')" class="error">
+      ⚠️ La contraseña es obligatoria
+    </div>
+
+    <button type="submit" class="btn btn-primary">Ingresar</button>
+  </form>
+
+  <p *ngIf="mensaje" class="error">{{ mensaje }}</p>
+
+  <!-- TOAST de sesión exitosa -->
+  <div class="toast-exito" *ngIf="mostrarToast">
+    ✅ Sesión iniciada correctamente
+  </div>
+</div>

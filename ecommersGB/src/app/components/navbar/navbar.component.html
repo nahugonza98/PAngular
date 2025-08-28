@@ -1,0 +1,94 @@
+<!-- NAVBAR COMPONENT HTML COMPLETO -->
+<div class="navbar-superior">
+  <div class="logo">ECOMMERCEGB</div>
+
+  <div class="iconos">
+    <!-- Usuario logueado -->
+    <ng-container *ngIf="usuarioActual; else noLogueado">
+      <!-- Ícono del carrito -->
+      <div class="icono carrito-icono" (click)="toggleMiniCarrito()">
+        🛒
+        <span class="contador" *ngIf="cantidadEnCarrito > 0">{{ cantidadEnCarrito }}</span>
+      </div>
+
+      <!-- Mini carrito -->
+      <div class="mini-carrito" *ngIf="mostrarMiniCarrito">
+        <div class="mini-carrito-header">
+          <h4>Carrito de Compras</h4>
+          <button class="cerrar-mini" (click)="toggleMiniCarrito()">✖</button>
+        </div>
+
+        <div *ngIf="carritoService.obtenerProductos().length === 0" class="mini-vacio">
+          <p>Tu carrito está vacío.</p>
+        </div>
+
+        <div *ngFor="let producto of carritoService.obtenerProductos()" class="mini-producto">
+          <img [src]="producto.imagen" alt="{{ producto.nombre }}" />
+          <div class="mini-detalles">
+            <strong>{{ producto.nombre }}</strong>
+            <div class="mini-controles">
+              <span>$ {{ producto.precio | number:'1.0-0' }}</span>
+              <div class="mini-cantidad">
+                <button (click)="restarCantidad(producto)">−</button>
+                <span>{{ producto.cantidad }}</span>
+                <button (click)="sumarCantidad(producto)">+</button>
+              </div>
+            </div>
+            <div class="mini-subtotal">
+              Subtotal: $ {{ producto.precio * producto.cantidad | number:'1.0-0' }}
+            </div>
+          </div>
+        </div>
+
+        <div class="mini-total">
+          <strong>Total:</strong> ${{ carritoService.obtenerTotalPrecio() | number:'1.0-0' }}
+        </div>
+
+        <button routerLink="/carrito" class="btn-ver-carrito">Ver carrito</button>
+      </div>
+
+      <!-- Usuario -->
+      <div class="usuario-dropdown">
+        <div class="usuario-wrapper" (click)="toggleDropdown()">
+          👤 {{ usuarioActual.email }}
+        </div>
+        <div class="dropdown-usuario" *ngIf="mostrarDropdown">
+          <button (click)="cerrarSesion()">Cerrar sesión</button>
+        </div>
+      </div>
+    </ng-container>
+
+    <ng-template #noLogueado>
+      <div class="login-links">
+        <a routerLink="/login">🔐 Iniciar sesión</a>
+        <a routerLink="/registro">📝 Registrarse</a>
+      </div>
+    </ng-template>
+  </div>
+</div>
+
+<!-- Fila 2: Menú horizontal si hay sesión -->
+<div class="navbar-inferior" *ngIf="usuarioActual">
+  <a routerLink="/">Inicio</a>
+
+  <div class="dropdown">
+    <span class="dropdown-toggle" (click)="toggleCategorias()">Productos ▼</span>
+    <div class="dropdown-menu" *ngIf="mostrarCategorias">
+      <a routerLink="/categoria/ver-todo">Ver todo</a>
+      <a routerLink="/categoria/blazers">Blazers</a>
+      <a routerLink="/categoria/pantalones">Pantalones</a>
+      <a routerLink="/categoria/sacos">Sacos</a>
+      <a routerLink="/categoria/sweater">Sweater</a>
+      <a routerLink="/categoria/remeras">Remeras</a>
+      <a routerLink="/categoria/camisas">Camisas</a>
+      <a routerLink="/categoria/mono">Mono</a>
+      <a routerLink="/categoria/blusa">Blusa</a>
+    </div>
+  </div>
+
+  <a routerLink="/contacto">Contacto</a>
+  <a *ngIf="usuarioActual.rol === 'admin'" routerLink="/ingresar-producto">Ingresar producto</a>
+  <li *ngIf="usuarioActual?.rol === 'admin'">
+    <a routerLink="/facturas">Ver facturas</a>
+  </li>
+</div>

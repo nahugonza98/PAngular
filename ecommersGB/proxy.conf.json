@@ -1,0 +1,10 @@
+{
+  "/bcra-api": {
+    "target": "https://api.estadisticasbcra.com",
+    "secure": true,
+    "changeOrigin": true,
+    "pathRewrite": {
+      "^/bcra-api": ""
+    }
+  }
+}

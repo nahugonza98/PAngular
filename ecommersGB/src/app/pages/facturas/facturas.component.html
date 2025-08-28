@@ -1,0 +1,32 @@
+<h2 class="titulo">Facturas generadas</h2>
+
+<!-- Input de búsqueda -->
+<div class="buscador">
+  <input
+    type="text"
+    [(ngModel)]="filtroFactura"
+    placeholder="🔍 Buscar por ID..."
+    class="form-control"
+  />
+</div>
+
+<table class="tabla-facturas" *ngIf="facturas.length > 0; else sinDatos">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Fecha</th>
+      <th>Total</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let factura of facturas | filtroFactura:filtroFactura">
+      <td>{{ factura.id }}</td>
+      <td>{{ factura.fecha | date: 'short' }}</td>
+      <td>$ {{ factura.total | number: '1.2-2' }}</td>
+    </tr>
+  </tbody>
+</table>
+
+<ng-template #sinDatos>
+  <p>No hay facturas registradas.</p>
+</ng-template>

@@ -1,0 +1,32 @@
+<div class="form-wrapper">
+  <h2>Ingresar nuevo producto</h2>
+
+
+<form [formGroup]="formulario" (ngSubmit)="guardarProducto()">
+
+  <label>Nombre:</label>
+  <input type="text" formControlName="nombre" [class.invalido]="campoInvalido('nombre')" />
+  <div class="error" *ngIf="campoInvalido('nombre')">
+    ⚠️ El nombre es obligatorio.
+  </div>
+
+  <label>Precio:</label>
+  <input type="number" formControlName="precio" [class.invalido]="campoInvalido('precio')" />
+  <div class="error" *ngIf="campoInvalido('precio')">
+    ⚠️ El precio es obligatorio y debe ser mayor a 0.
+  </div>
+
+  <label>Imagen (URL):</label>
+  <input type="text" formControlName="imagen" [class.invalido]="campoInvalido('imagen')" />
+  <div class="error" *ngIf="campoInvalido('imagen')">
+    ⚠️ Debés ingresar una URL de imagen.
+  </div>
+
+  <label>Descripción:</label>
+  <textarea formControlName="descripcion"></textarea>
+
+  <button type="submit" class="btn btn-success">Guardar producto</button>
+</form>
+
+<p *ngIf="mensaje">{{ mensaje }}</p>
+</div>
