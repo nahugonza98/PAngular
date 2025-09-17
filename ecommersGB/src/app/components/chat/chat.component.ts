@@ -1,121 +1,177 @@
-import { Component, Inject, OnInit, PLATFORM_ID } from '@angular/core';
-import { isPlatformBrowser, CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { getFirebase } from '../../firebase.init'; 
 
-import { AuthService } from '../../servicios/auth.service';
-import { onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebase/auth';
+import {
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  signOut,
+  User
+} from 'firebase/auth';
+import {
+  ref as dbRef,
+  onValue,
+  off,
+  update,
+  push,
+  query,
+  orderByChild,
+  Database
+} from 'firebase/database';
+
+type UsersMap = Record<string, { displayName?: string; email?: string }>;
+
+interface ChatMsg {
+  id: string;
+  uid: string;
+  text: string;
+  timestamp: number;
+}
 
 @Component({
   selector: 'app-chat',
   standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatIconModule,
-    MatButtonModule,
-    MatProgressSpinnerModule,
-  ],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './chat.component.html',
-  styleUrls: ['./chat.component.css'],
+  styleUrls: ['./chat.component.css']
 })
-export class ChatComponent implements OnInit {
-  // Login
-  loginForm!: FormGroup;
-  loadingLogin = false;
-  loginErrorMsg: string | null = null;
-
-  // Chat
-  form!: FormGroup;
-  chats: Array<{ username: string; text: string; timestamp: number }> = [];
-
-  // Estado de sesión
+export class ChatComponent implements OnInit, OnDestroy {
   isLoggedIn = false;
+  currentUid: string | null = null;
 
-  constructor(
-    private fb: FormBuilder,
-    public auth: AuthService,
-    @Inject(PLATFORM_ID) private platformId: Object
-  ) {
-    // Solo definimos los forms en el ctor (no tocamos auth acá)
+  loginForm: FormGroup;
+  form: FormGroup;
+  loadingLogin = false;
+  loginErrorMsg = '';
+
+  chats: ChatMsg[] = [];
+  usersMap: UsersMap = {};
+
+  private auth: any;
+  private db: Database | null = null;
+
+  private authUnsub: (() => void) | null = null;
+  private usersOff: (() => void) | null = null;
+  private msgsOff: (() => void) | null = null;
+
+  constructor(private fb: FormBuilder) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]],
-      username: ['', [Validators.required, Validators.minLength(2)]],
+      password: ['', [Validators.required]],
+      username: ['', [Validators.minLength(3), Validators.maxLength(24)]]
     });
 
     this.form = this.fb.group({
-      username: ['', [Validators.required, Validators.minLength(2)]],
-      message: ['', [Validators.required]],
+      username: ['', [Validators.minLength(3), Validators.maxLength(24)]],
+      message: ['', [Validators.required]]
     });
   }
 
   async ngOnInit() {
-    // Evita inicializar Firebase en SSR
-    if (!isPlatformBrowser(this.platformId)) return;
+    const { auth, db } = await getFirebase();
+    this.auth = auth;
+    this.db = db;
 
-    // *** Inicializa Firebase antes de leer this.auth.auth ***
-    await this.auth.ready();
+    this.authUnsub = onAuthStateChanged(this.auth, (user: User | null) => {
+      this.isLoggedIn = !!user;
+      this.currentUid = user?.uid ?? null;
 
-    // Recién ahora podemos usar this.auth.auth
-    onAuthStateChanged(this.auth.auth, (u) => (this.isLoggedIn = !!u));
+      if (this.isLoggedIn) {
+        this.subUsers();
+        this.subMensajes();
+      } else {
+        this.unsubUsers();
+        this.unsubMensajes();
+        this.chats = [];
+      }
+    });
   }
 
-  // ===== Login =====
-  async login() {
-    if (this.loginForm.invalid) return;
-    if (!isPlatformBrowser(this.platformId)) return;
+  ngOnDestroy() {
+    this.authUnsub?.();
+    this.unsubUsers();
+    this.unsubMensajes();
+  }
 
-    this.loadingLogin = true;
-    this.loginErrorMsg = null;
-
-    const { email, password, username } = this.loginForm.value as {
-      email: string;
-      password: string;
-      username: string;
+  // -------- SUBS ----------
+  private subUsers() {
+    if (!this.db) return;
+    const cb = (snap: any) => {
+      this.usersMap = snap.val() ?? {};
+      this.chats = [...this.chats]; // refresca vista
     };
+    const ref = dbRef(this.db, 'users');
+    onValue(ref, cb);
+    this.usersOff = () => off(ref, 'value', cb);
+  }
+  private unsubUsers() { this.usersOff?.(); this.usersOff = null; }
+
+  private subMensajes() {
+    if (!this.db) return;
+    const cb = (snap: any) => {
+      const raw = snap.val() ?? {};
+      this.chats = Object.entries(raw).map(([id, m]: any) => ({
+        id,
+        uid: m.uid,
+        text: m.text,
+        timestamp: typeof m.timestamp === 'number' ? m.timestamp : Date.now()
+      }));
+    };
+    const ref = query(dbRef(this.db, 'rooms/global/messages'), orderByChild('timestamp'));
+    onValue(ref, cb);
+    this.msgsOff = () => off(ref, 'value', cb);
+  }
+  private unsubMensajes() { this.msgsOff?.(); this.msgsOff = null; }
+
+  // -------- LOGIN ----------
+  async login() {
+    if (!this.db || this.loginForm.invalid) return;
+    this.loadingLogin = true;
+    this.loginErrorMsg = '';
+    const { email, password, username } = this.loginForm.value;
 
     try {
-      await this.auth.ready(); // por si entran directo a la ruta /chat
-      await signInWithEmailAndPassword(this.auth.auth, email, password);
-      this.form.patchValue({ username });
-    } catch {
-      this.loginErrorMsg = 'Credenciales inválidas o acceso bloqueado. Intenta nuevamente.';
+      const cred = await signInWithEmailAndPassword(this.auth, email, password);
+      const uid = cred.user.uid;
+
+      const alias = (username ?? '').toString().trim();
+      if (alias.length >= 3 && alias.length <= 24) {
+        await update(dbRef(this.db, `users/${uid}`), { displayName: alias, email });
+      } else {
+        await update(dbRef(this.db, `users/${uid}`), { email });
+      }
+    } catch (e: any) {
+      this.loginErrorMsg = e?.message ?? 'Error al iniciar sesión';
     } finally {
       this.loadingLogin = false;
     }
   }
 
-  async logout() {
-    if (!isPlatformBrowser(this.platformId)) return;
-    await this.auth.ready();
-    await signOut(this.auth.auth);
-  }
+  async logout() { await signOut(this.auth); }
 
-  // ===== Chat =====
+  // -------- MENSAJES ----------
   async send() {
-    if (this.form.invalid) return;
-    const { username, message } = this.form.value as { username: string; message: string };
+    if (!this.db || !this.currentUid || this.form.invalid) return;
+    const message: string = (this.form.value.message ?? '').toString().trim();
+    if (!message) return;
 
-    this.chats.push({
-      username: (username || 'Anon').trim(),
-      text: (message || '').trim(),
-      timestamp: Date.now(),
+    const alias = (this.form.value.username ?? '').toString().trim();
+    if (alias.length >= 3 && alias.length <= 24) {
+      await update(dbRef(this.db, `users/${this.currentUid}`), { displayName: alias });
+    }
+
+    await push(dbRef(this.db, 'rooms/global/messages'), {
+      uid: this.currentUid,
+      text: message,
+      timestamp: Date.now()
     });
-    this.form.patchValue({ message: '' });
 
-    setTimeout(() => {
-      const el = document.getElementById('history');
-      if (el) el.scrollTop = el.scrollHeight;
-    }, 0);
+    this.form.patchValue({ message: '' });
   }
+
+  // -------- HELPERS ----------
+  trackById(_i: number, m: ChatMsg) { return m.id; }
+  nombreDe(uid: string) { return this.usersMap[uid]?.displayName || 'Anon'; }
 }

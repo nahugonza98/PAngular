@@ -12,12 +12,11 @@
       <label>Nombre a mostrar en el chat</label>
       <input type="text" formControlName="username" placeholder="Tu alias" />
 
-      <!-- Alerta genérica (no explícita) -->
       <div class="alert" *ngIf="loginErrorMsg">{{ loginErrorMsg }}</div>
 
       <button type="submit" [disabled]="loadingLogin || loginForm.invalid">
-  {{ loadingLogin ? 'Ingresando…' : 'Iniciar sesión' }}
-</button>
+        {{ loadingLogin ? 'Ingresando…' : 'Iniciar sesión' }}
+      </button>
     </form>
   </div>
 </div>
@@ -31,13 +30,13 @@
     </div>
 
     <div id="history" class="history">
-      <div *ngFor="let chat of chats" class="msg" [ngClass]="{
-          me: (chat.username || 'Anon') === (form.value.username || 'Anon'),
-          other: (chat.username || 'Anon') !== (form.value.username || 'Anon')
-        }">
+      <div *ngFor="let chat of chats; trackBy: trackById"
+           class="msg"
+           [ngClass]="{ me: chat.uid === currentUid, other: chat.uid !== currentUid }">
         <div class="bubble">
           <div class="meta">
-            <b>{{ chat.username || 'Anon' }}</b> <p></p>
+            <b>{{ nombreDe(chat.uid) }}</b>
+            <span class="sep">·</span>
             <span class="time">{{ chat.timestamp | date:'short' }}</span>
           </div>
           <div class="text">{{ chat.text }}</div>
@@ -46,7 +45,7 @@
     </div>
 
     <form id="message" class="composer" [formGroup]="form" (ngSubmit)="send()">
-      <input type="text" formControlName="username" placeholder="Tu alias" />
+      <input type="text" formControlName="username" placeholder="Tu alias (opcional)" />
       <div class="send-box">
         <input type="text" formControlName="message" placeholder="Escribe un mensaje…" autocomplete="off" />
         <button type="submit" [disabled]="form.invalid || !form.value.message?.trim()">Enviar</button>
