@@ -322,7 +322,7 @@ body, :host {
 
 /* --- Fix fuerte para el botón del login --- */
 .login button {
-  all: unset;                 /* borra estilos heredados raros */
+  all: unset;                
   display: block;
   width: 100%;
   text-align: center;
@@ -331,9 +331,9 @@ body, :host {
   background: #1976d2;
   color: #fff;
   font-weight: 700;
-  margin: 12px auto 0;   /* auto a izquierda/derecha = centrado */
-  width: 90%;            /* ocupa el 90% del ancho del form */
-  max-width: 280px;      /* no se hace gigante en pantallas grandes */
+  margin: 12px auto 0;   
+  width: 90%;            
+  max-width: 280px;      
   letter-spacing: .2px;
   cursor: pointer;
   box-shadow: 0 6px 20px rgba(25,118,210,.25);
