@@ -1,187 +1,352 @@
-/* ----- Layout general ----- */
+/* Reset básico */
+* {
+  box-sizing: border-box;
+  font-family: 'Roboto', Arial, sans-serif;
+}
+
 .chat-shell {
   display: flex;
   flex-direction: column;
-  height: min(78vh, 760px);
-  max-height: 90vh;
-  max-width: 840px;
-  margin: 16px auto;
-  border-radius: 16px;
-  overflow: hidden; /* recorta bordes redondeados */
+  height: 80vh;
+  max-width: 700px;
+  margin: 20px auto;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
 
 /* Header */
 .chat-header {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   padding: 12px 16px;
-  border-bottom: 1px solid rgba(0,0,0,0.06);
-}
-
-.chat-header .title {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
+  background: #1976d2;
+  color: #fff;
   font-weight: 600;
 }
-
-.chat-header mat-icon {
-  font-size: 22px;
-  width: 22px;
-  height: 22px;
-  opacity: 0.85;
+.chat-header .logout {
+  background: #fff;
+  color: #1976d2;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+}
+.chat-header .logout:hover {
+  background: #f0f0f0;
 }
 
-/* ----- Historial ----- */
+/* Historial */
 .history {
-  position: relative;
-  flex: 1 1 auto;
-  padding: 16px 14px;
+  flex: 1;
+  padding: 12px;
   overflow-y: auto;
-  background:
-    linear-gradient(180deg, rgba(0,0,0,0.02), rgba(0,0,0,0.00) 120px),
-    var(--chat-bg, #fafafa);
+  background: #f9f9f9;
 }
-
-/* Mensaje (contenedor) */
 .msg {
   display: flex;
   margin: 8px 0;
 }
-
-/* Alineación me/other */
 .msg.me {
   justify-content: flex-end;
 }
-
 .msg.other {
   justify-content: flex-start;
 }
-
-/* Burbuja */
 .bubble {
-  max-width: 76%;
-  padding: 10px 12px;
+  max-width: 70%;
+  padding: 10px 14px;
   border-radius: 14px;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.06);
-  animation: pop 120ms ease-out;
+  background: #e0e0e0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
-
-/* Colores burbuja */
 .msg.me .bubble {
-  background: #1976d2;            /* Mat-Primary aprox (indigo/blue) */
+  background: #1976d2;
   color: #fff;
-  border-top-right-radius: 6px;
+  border-bottom-right-radius: 4px;
 }
-
 .msg.other .bubble {
-  background: #ffffff;
-  color: #222;
-  border-top-left-radius: 6px;
-  border: 1px solid rgba(0,0,0,0.06);
+  background: #fff;
+  border: 1px solid #ddd;
+  border-bottom-left-radius: 4px;
 }
-
-/* Meta (usuario y hora) */
 .meta {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
+  font-size: 0.8rem;
+  opacity: 0.8;
   margin-bottom: 4px;
-  opacity: 0.9;
 }
-
-.meta b {
-  font-weight: 600;
-}
-
-.meta .time {
-  font-size: 0.78rem;
-  opacity: 0.75;
-}
-
-/* Texto del mensaje */
 .text {
-  white-space: pre-wrap;
   word-wrap: break-word;
-  line-height: 1.35;
+  line-height: 1.4;
 }
 
-/* ----- Composer (form) ----- */
+/* Composer */
 .composer {
-  display: grid;
-  grid-template-columns: 1fr;
+  display: flex;
+  flex-direction: column;
   gap: 8px;
   padding: 12px;
-  border-top: 1px solid rgba(0,0,0,0.06);
+  border-top: 1px solid #ddd;
   background: #fff;
 }
-
-.fw { width: 100%; }
-
-/* Botón enviar dentro del mat-form-field */
-.composer button[mat-icon-button] {
-  transform: translateX(4px);
+.composer input {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  flex: 1;
+}
+.send-box {
+  display: flex;
+  gap: 6px;
+}
+.send-box button {
+  background: #1976d2;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  cursor: pointer;
+  font-weight: 600;
+}
+.send-box button:disabled {
+  background: #aaa;
+  cursor: not-allowed;
+}
+.send-box button:hover:enabled {
+  background: #125aa0;
 }
 
-.composer button[mat-icon-button]:active {
-  transform: translateX(4px) scale(0.95);
+/* Login */
+#loginCard {
+  padding: 24px;
+  max-width: 360px;
+  margin: 60px auto;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
-
-/* ----- Scrollbar sutil ----- */
-.history::-webkit-scrollbar {
-  width: 10px;
+.login {
+  display: grid;
+  gap: 10px;
 }
-.history::-webkit-scrollbar-thumb {
-  background: rgba(0,0,0,0.15);
+.login input {
+  padding: 10px;
+  border: 1px solid #ccc;
   border-radius: 8px;
 }
-.history::-webkit-scrollbar-track {
-  background: transparent;
+.login button {
+  background: #1976d2;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px;
+  cursor: pointer;
+  font-weight: 600;
+}
+.login button:disabled {
+  background: #aaa;
+  cursor: not-allowed;
+}
+.alert {
+  background: #ffe8e8;
+  color: #b00020;
+  border: 1px solid #f5bcbc;
+  padding: 8px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
 }
 
-/* ----- Responsivo ----- */
-@media (max-width: 640px) {
-  .chat-shell {
-    height: 82vh;
-    margin: 8px;
+/* Scrollbar */
+.history::-webkit-scrollbar { width: 8px; }
+.history::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 4px;
+}
+
+
+/* ===== Variables (podés ajustar colores acá) ===== */
+:root {
+  --bg: #f7f7f8;
+  --card-bg: #ffffff;
+  --text: #1a1a1a;
+  --muted: #6b7280;
+  --primary: #1976d2;
+  --primary-700: #125aa0;
+  --border: #e5e7eb;
+  --ring: #cfe6ff;
+  --danger: #b00020;
+}
+
+/* ===== Contenedor de la página ===== */
+body, :host {
+  background: var(--bg);
+}
+
+/* Tarjeta del login */
+#loginCard {
+  background: var(--card-bg);
+  width: min(92vw, 520px);
+  min-height: 560px;
+  margin: 32px auto;
+  padding: 22px 24px 28px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.08);
+}
+
+#loginCard h3 {
+  margin: 4px 0 12px;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+/* ===== Formulario ===== */
+.login {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+
+.login label {
+  font-size: .92rem;
+  color: var(--text);
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+.login input {
+  width: 100%;
+  margin-top: 6px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--text);
+  outline: none;
+  transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
+  font-size: .98rem;
+}
+
+.login input::placeholder {
+  color: var(--muted);
+}
+
+.login input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px var(--ring);
+}
+
+/* Estados inválidos opcionales (si marcás touched/invalid en Angular) */
+.login input.ng-invalid.ng-touched {
+  border-color: var(--danger);
+  box-shadow: 0 0 0 4px rgba(176,0,32,.15);
+}
+
+/* Botón */
+.login button {
+  margin-top: 4px;
+  width: 100%;
+  padding: 12px 14px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--primary);
+  color: #fff;
+  font-weight: 700;
+  letter-spacing: .2px;
+  cursor: pointer;
+  transition: transform .06s ease, background .15s ease, box-shadow .15s ease, opacity .15s ease;
+  box-shadow: 0 6px 20px rgba(25,118,210,.25);
+}
+
+.login button:hover:not(:disabled) { background: var(--primary-700); }
+.login button:active:not(:disabled) { transform: translateY(1px); }
+
+.login button:disabled {
+  background: #b7bcc3;
+  cursor: not-allowed;
+  box-shadow: none;
+  opacity: .9;
+}
+
+/* Mensaje de error genérico (no explícito) */
+.alert {
+  margin-top: 6px;
+  padding: 10px 12px;
+  border: 1px solid #f5bcbc;
+  background: #ffe8e8;
+  color: var(--danger);
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: .94rem;
+}
+
+/* Hint/ayudas (si las usás) */
+.hint {
+  font-size: .82rem;
+  color: var(--muted);
+  margin-top: -6px;
+}
+
+/* ===== Animación de “shake” opcional para toda la tarjeta ===== */
+.shake { animation: shake .32s linear 1; }
+@keyframes shake {
+  0%{ transform: translateX(0) }
+  25%{ transform: translateX(-6px) }
+  50%{ transform: translateX(6px) }
+  75%{ transform: translateX(-6px) }
+  100%{ transform: translateX(0) }
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 480px) {
+  #loginCard {
+    margin: 18px auto;
+    padding: 18px 16px 22px;
     border-radius: 12px;
   }
-  .bubble {
-    max-width: 88%;
-  }
+  #loginCard h3 { font-size: 1.2rem; }
 }
 
-/* ----- Modo oscuro amigable con Angular Material -----
-   Si usás theming oscuro, estos colores acompañan bien. */
-:host-context(.dark-theme) .history {
-  --chat-bg: #121212;
-  background: var(--chat-bg);
+/* ===== (Opcional) fuente Roboto para un look más “app” ===== */
+@supports (font-variation-settings: normal) {
+  body, input, button, label { font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
 }
-:host-context(.dark-theme) .chat-header {
-  border-bottom-color: rgba(255,255,255,0.08);
-}
-:host-context(.dark-theme) .composer {
-  background: #1a1a1a;
-  border-top-color: rgba(255,255,255,0.08);
-}
-:host-context(.dark-theme) .msg.other .bubble {
-  background: #1e1e1e;
-  color: #eaeaea;
-  border: 1px solid rgba(255,255,255,0.06);
-}
-:host-context(.dark-theme) .msg.me .bubble {
-  background: #2196f3; /* un pelín más claro en dark */
+
+
+/* --- Fix fuerte para el botón del login --- */
+.login button {
+  all: unset;                 /* borra estilos heredados raros */
+  display: block;
+  width: 100%;
+  text-align: center;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: #1976d2;
   color: #fff;
+  font-weight: 700;
+  margin: 12px auto 0;   /* auto a izquierda/derecha = centrado */
+  width: 90%;            /* ocupa el 90% del ancho del form */
+  max-width: 280px;      /* no se hace gigante en pantallas grandes */
+  letter-spacing: .2px;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(25,118,210,.25);
+  transition: transform .06s ease, background .15s ease, box-shadow .15s ease, opacity .15s ease;
 }
 
-/* ----- Micro animación ----- */
-@keyframes pop {
-  from {
-    opacity: 0;
-    transform: translateY(6px) scale(0.98);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
+.login button:hover:not(:disabled) { background: #125aa0; }
+.login button:active:not(:disabled) { transform: translateY(1px); }
+.login button:disabled {
+  background: #b7bcc3;
+  color: #fff;
+  cursor: not-allowed;
+  box-shadow: none;
+  opacity: .95;
+  pointer-events: none;
 }

@@ -1,49 +1,56 @@
-<div *ngIf="!(auth.user$ | async); else chatUI">
-  <!-- formulario login/registro -->
+<div *ngIf="!isLoggedIn; else chatUI">
+  <div class="chat-shell" id="loginCard">
+    <h3>Iniciar sesión</h3>
+
+    <form class="login" [formGroup]="loginForm" (ngSubmit)="login()">
+      <label>Email</label>
+      <input type="email" formControlName="email" placeholder="nombre@correo.com" />
+
+      <label>Contraseña</label>
+      <input type="password" formControlName="password" placeholder="••••••••" />
+
+      <label>Nombre a mostrar en el chat</label>
+      <input type="text" formControlName="username" placeholder="Tu alias" />
+
+      <!-- Alerta genérica (no explícita) -->
+      <div class="alert" *ngIf="loginErrorMsg">{{ loginErrorMsg }}</div>
+
+      <button type="submit" [disabled]="loadingLogin || loginForm.invalid">
+  {{ loadingLogin ? 'Ingresando…' : 'Iniciar sesión' }}
+</button>
+    </form>
+  </div>
 </div>
+
 <ng-template #chatUI>
-  <!-- tu chat normal -->
-</ng-template>
-
-
-<mat-card class="chat-shell">
-  <mat-card-header class="chat-header">
-    <div class="title">
-      <mat-icon>chat</mat-icon>
-      <span>Sala global</span>
+  <div class="chat-shell">
+    <div class="chat-header">
+      <div class="title">Sala global</div>
+      <span class="spacer"></span>
+      <button class="logout" (click)="logout()">Salir</button>
     </div>
-  </mat-card-header>
 
-  <!-- Historial -->
-  <div id="history" class="history">
-    <div *ngFor="let chat of chats" class="msg" [ngClass]="{
-        me: (chat.username || 'Anon') === (form.value.username || 'Anon'),
-        other: (chat.username || 'Anon') !== (form.value.username || 'Anon')
-      }">
-      <div class="bubble">
-        <div class="meta">
-          <b>{{ chat.username || 'Anon' }}</b>
-          <span class="time">{{ chat.timestamp | date:'short' }}</span>
+    <div id="history" class="history">
+      <div *ngFor="let chat of chats" class="msg" [ngClass]="{
+          me: (chat.username || 'Anon') === (form.value.username || 'Anon'),
+          other: (chat.username || 'Anon') !== (form.value.username || 'Anon')
+        }">
+        <div class="bubble">
+          <div class="meta">
+            <b>{{ chat.username || 'Anon' }}</b> <p></p>
+            <span class="time">{{ chat.timestamp | date:'short' }}</span>
+          </div>
+          <div class="text">{{ chat.text }}</div>
         </div>
-        <div class="text">{{ chat.text }}</div>
       </div>
     </div>
+
+    <form id="message" class="composer" [formGroup]="form" (ngSubmit)="send()">
+      <input type="text" formControlName="username" placeholder="Tu alias" />
+      <div class="send-box">
+        <input type="text" formControlName="message" placeholder="Escribe un mensaje…" autocomplete="off" />
+        <button type="submit" [disabled]="form.invalid || !form.value.message?.trim()">Enviar</button>
+      </div>
+    </form>
   </div>
-
-  <!-- Composer -->
-  <form id="message" class="composer" [formGroup]="form" (ngSubmit)="send()">
-    <mat-form-field appearance="outline" class="fw" style="margin-bottom:8px">
-      <mat-label>Username</mat-label>
-      <input matInput formControlName="username" />
-    </mat-form-field>
-
-    <mat-form-field appearance="fill" class="fw">
-      <mat-label>Escribe un mensaje…</mat-label>
-      <input matInput formControlName="message" autocomplete="off" />
-      <button type="submit" mat-icon-button matSuffix [disabled]="form.invalid || !form.value.message?.trim()"
-        aria-label="Enviar">
-        <mat-icon>send</mat-icon>
-      </button>
-    </mat-form-field>
-  </form>
-</mat-card>
+</ng-template>

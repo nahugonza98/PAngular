@@ -1,5 +1,8 @@
 import { createRequire } from 'module';const require = createRequire(import.meta.url);
 import {
+  require_safe_buffer
+} from "./chunk-MSXBUUOZ.js";
+import {
   Component,
   ComponentContainer,
   Deferred,
@@ -41,9 +44,6 @@ import {
   stringify,
   updateEmulatorBanner
 } from "./chunk-NAV7NFFT.js";
-import {
-  require_safe_buffer
-} from "./chunk-MSXBUUOZ.js";
 import {
   __async,
   __commonJS,

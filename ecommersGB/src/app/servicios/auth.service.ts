@@ -17,8 +17,8 @@ export class AuthService {
   private isBrowser = false;
   private initPromise: Promise<void> | null = null;
 
-  private _auth: import('firebase/auth').Auth | null = null;
-  private _db: import('firebase/database').Database | null = null;
+  public _auth: import('firebase/auth').Auth | null = null;
+  public _db: import('firebase/database').Database | null = null;
 
   /** cache de usuario actual */
   currentUser: User | null = null;
@@ -47,7 +47,7 @@ export class AuthService {
   }
 
   // Getters seguros
-  private get auth() {
+  public get auth() {
     if (!this._auth) throw new Error('Auth no inicializado. Llama a ready() en el navegador.');
     return this._auth;
   }

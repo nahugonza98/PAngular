@@ -22,7 +22,9 @@ export const routes: Routes = [
   { path: 'registro', component: RegistroComponent },
   { path: 'facturas', component: FacturasComponent },
   { path: 'login', component: LoginComponent },
-  { path: 'chat', component: ChatComponent },
+  { path: 'chat', component: ChatComponent }
+
+
 
 
 ];
