@@ -1,0 +1,40 @@
+<h3>🧾 Detalle de la factura</h3>
+
+<table class="tabla">
+  <thead>
+    <tr>
+      <th>Producto</th>
+      <th>Precio ARS</th>
+      <th>Precio USD</th>
+      <th>Cantidad</th>
+      <th>Subtotal ARS</th>
+      <th>Subtotal USD</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let p of productos">
+      <td>{{ p.nombre }}</td>
+      <td>$ {{ p.precio | number:'1.2-2' }}</td>
+      <td>U$D {{ (p.precio / cotizacionUSD) | number:'1.2-2' }}</td>
+      <td>{{ p.cantidad }}</td>
+      <td>$ {{ obtenerSubtotal(p) | number:'1.2-2' }}</td>
+      <td>U$D {{ obtenerSubtotalUSD(p) | number:'1.2-2' }}</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="total">
+  <p><strong>Total ARS:</strong> $ {{ obtenerTotal() | number:'1.2-2' }}</p>
+  <p><strong>Total USD:</strong> U$D {{ obtenerTotalUSD() | number:'1.2-2' }}</p>
+</div>
+
+<div class="compra-usd" *ngIf="cotizacionUSD">
+  <p>
+<!--     💱 Cotización oficial del BCRA: <strong>$ {{ cotizacionUSD | number:'1.2-2' }}</strong> ARS/USD<br />
+ -->    ¿Querés pagar en dólares? <br />
+    <a href="https://wa.me/5491123456789" target="_blank">📲 Contactanos por WhatsApp</a>
+  </p>
+
+<button class="btn btn-success" (click)="confirmar()">✅ Confirmar compra</button>
+
+</div>

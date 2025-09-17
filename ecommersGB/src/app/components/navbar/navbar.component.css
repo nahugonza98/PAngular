@@ -1,0 +1,302 @@
+/* NAVBAR GENERAL */
+.navbar {
+  display: flex;
+  flex-direction: column;
+  background-color: #000;
+  color: white;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  font-size: 0.95rem;
+}
+
+/* Fila superior */
+.navbar-superior {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 24px;
+  background-color: #000;
+}
+
+.logo {
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: white;
+}
+
+/* Íconos superiores */
+.iconos {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  position: relative;
+}
+
+.icono {
+  font-size: 20px;
+  color: white;
+  text-decoration: none;
+  position: relative;
+  cursor: pointer;
+}
+
+/* Contador rojo del carrito */
+.contador {
+  position: absolute;
+  top: -6px;
+  right: -10px;
+  background-color: red;
+  color: white;
+  border-radius: 50%;
+  padding: 2px 6px;
+  font-size: 10px;
+  font-weight: bold;
+}
+
+/* MINI CARRITO */
+.mini-carrito {
+  position: absolute;
+  right: 0;
+  top: 42px;
+  width: 320px;
+  background-color: #fff;
+  color: #000;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+  padding: 16px;
+  z-index: 999;
+  font-size: 14px;
+}
+
+.mini-carrito-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.cerrar-mini {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.mini-producto {
+  display: flex;
+  margin-bottom: 12px;
+}
+
+.mini-producto img {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  margin-right: 10px;
+  border-radius: 6px;
+}
+
+.mini-detalles {
+  flex: 1;
+}
+
+.mini-controles {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.mini-cantidad {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mini-cantidad button {
+  width: 22px;
+  height: 22px;
+  font-size: 14px;
+  background-color: #eee;
+  border: 1px solid #ccc;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.mini-subtotal {
+  font-size: 13px;
+  margin-top: 4px;
+  color: #444;
+}
+
+.mini-total {
+  border-top: 1px solid #ddd;
+  margin-top: 10px;
+  padding-top: 10px;
+  text-align: right;
+  font-weight: bold;
+}
+
+.btn-ver-carrito {
+  width: 100%;
+  margin-top: 10px;
+  padding: 10px;
+  background-color: #000;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btn-ver-carrito:hover {
+  background-color: #222;
+}
+
+/* NAVBAR INFERIOR (menu principal) */
+.navbar-inferior {
+  display: flex;
+  justify-content: center;
+  gap: 28px;
+  padding: 10px 0;
+  background-color: #111;
+}
+
+.navbar-inferior a {
+  color: white;
+  text-decoration: none;
+  font-size: 14px;
+  transition: color 0.2s ease;
+}
+
+.navbar-inferior a:hover {
+  text-decoration: underline;
+  color: #ccc;
+}
+
+/* DROPDOWN */
+.dropdown {
+  position: relative;
+  cursor: pointer;
+}
+
+.dropdown-toggle {
+  color: white;
+  user-select: none;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  background-color: #111;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  border: 1px solid #444;
+  border-radius: 4px;
+  z-index: 999;
+}
+
+.dropdown-menu a {
+  color: white;
+  text-decoration: none;
+  font-size: 13px;
+  padding: 4px 10px;
+  border-radius: 4px;
+}
+
+.dropdown-menu a:hover {
+  background-color: #222;
+}
+
+/* Estilo login/registro */
+.login-links a {
+  color: white;
+  margin-left: 10px;
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.login-links a:hover {
+  color: #ccc;
+}
+
+/* USUARIO ACTIVO */
+.usuario-wrapper {
+  position: relative;
+  background-color: #222;
+  padding: 5px 10px;
+  border-radius: 6px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.usuario-wrapper:hover {
+  background-color: #333;
+}
+
+.dropdown-usuario {
+  position: absolute;
+  top: 115%;
+  right: 0;
+  background-color: white;
+  color: black;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 8px;
+  z-index: 999;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  min-width: 140px;
+}
+
+.dropdown-usuario button {
+  background: none;
+  border: none;
+  padding: 8px 12px;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  font-size: 14px;
+}
+
+.dropdown-usuario button:hover {
+  background-color: #f0f0f0;
+}
+
+
+.iconos {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  position: relative;
+}
+
+.usuario-dropdown {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.usuario-wrapper {
+  background-color: #333;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.dropdown-usuario {
+  position: absolute;
+  top: 110%;
+  right: 0;
+  background-color: white;
+  color: black;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 8px;
+  z-index: 999;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}

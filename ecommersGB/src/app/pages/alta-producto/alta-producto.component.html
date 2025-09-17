@@ -1,0 +1,17 @@
+<div class="container mt-4">
+  <h2>Alta de Producto</h2>
+
+  <form (ngSubmit)="crearProducto()" #form="ngForm">
+    <input type="text" placeholder="Nombre" name="nombre" [(ngModel)]="producto.nombre" required />
+    <input type="text" placeholder="Descripción" name="descripcion" [(ngModel)]="producto.descripcion" />
+    <input type="number" placeholder="Precio" name="precio" [(ngModel)]="producto.precio" required />
+    <input type="number" placeholder="Stock" name="stock" [(ngModel)]="producto.stock" required />
+    <input type="text" placeholder="Ruta imagen (assets/...)" name="imagen" [(ngModel)]="producto.imagen" />
+
+    <button type="submit">Crear producto</button>
+  </form>
+
+  <div *ngIf="mensaje" class="confirmacion">
+    ✅ {{ mensaje }}
+  </div>
+</div>

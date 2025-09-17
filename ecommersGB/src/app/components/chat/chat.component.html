@@ -1,0 +1,41 @@
+<mat-card class="chat-shell">
+  <mat-card-header class="chat-header">
+    <div class="title">
+      <mat-icon>chat</mat-icon>
+      <span>Sala global</span>
+    </div>
+  </mat-card-header>
+
+  <!-- Historial -->
+  <div id="history" class="history">
+    <div *ngFor="let chat of chats" class="msg" [ngClass]="{
+        me: (chat.username || 'Anon') === (form.value.username || 'Anon'),
+        other: (chat.username || 'Anon') !== (form.value.username || 'Anon')
+      }">
+      <div class="bubble">
+        <div class="meta">
+          <b>{{ chat.username || 'Anon' }}</b>
+          <span class="time">{{ chat.timestamp | date:'short' }}</span>
+        </div>
+        <div class="text">{{ chat.text }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Composer -->
+  <form id="message" class="composer" [formGroup]="form" (ngSubmit)="send()">
+    <mat-form-field appearance="outline" class="fw" style="margin-bottom:8px">
+      <mat-label>Username</mat-label>
+      <input matInput formControlName="username" />
+    </mat-form-field>
+
+    <mat-form-field appearance="fill" class="fw">
+      <mat-label>Escribe un mensaje…</mat-label>
+      <input matInput formControlName="message" autocomplete="off" />
+      <button type="submit" mat-icon-button matSuffix [disabled]="form.invalid || !form.value.message?.trim()"
+        aria-label="Enviar">
+        <mat-icon>send</mat-icon>
+      </button>
+    </mat-form-field>
+  </form>
+</mat-card>

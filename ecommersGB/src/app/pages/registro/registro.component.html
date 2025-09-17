@@ -1,0 +1,21 @@
+<div class="registro-container">
+  <h2>📝 Crear cuenta</h2>
+
+  <form [formGroup]="formulario" (ngSubmit)="registrarUsuario()">
+    <label for="email">Email:</label>
+    <input id="email" type="email" formControlName="email" />
+    <div *ngIf="campoInvalido('email')" class="error">⚠️ Email inválido</div>
+
+    <label for="password">Contraseña:</label>
+    <input id="password" type="password" formControlName="password" />
+    <div *ngIf="campoInvalido('password')" class="error">⚠️ Contraseña requerida</div>
+
+    <button type="submit">Crear cuenta</button>
+  </form>
+
+  <p *ngIf="mensaje" class="error">{{ mensaje }}</p>
+</div>
+
+<div class="toast-exito" *ngIf="mostrarToast">
+  ✅ Usuario creado con éxito
+</div>

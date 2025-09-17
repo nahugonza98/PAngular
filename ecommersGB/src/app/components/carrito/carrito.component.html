@@ -1,0 +1,53 @@
+<div class="contenedor-carrito">
+  <h2>Carrito de Compras</h2>
+
+  <!--  Mostrar carrito solo si NO se realizó la compra -->
+  <div *ngIf="!compraRealizada">
+    
+    <!-- Si no hay productos -->
+    <div *ngIf="productosEnCarrito.length === 0">
+      <p>No hay productos en el carrito.</p>
+    </div>
+
+    <!-- Si hay productos -->
+    <div *ngIf="productosEnCarrito.length > 0">
+      <div *ngFor="let producto of productosEnCarrito" class="item-carrito">
+        <img [src]="producto.imagen" [alt]="producto.nombre" class="imagen-carrito" />
+
+        <div class="info-carrito">
+          <h4>{{ producto.nombre }}</h4>
+
+          <div class="cantidad-control">
+            <button (click)="disminuirCantidad(producto)">−</button>
+            Cantidad: {{ producto.cantidad }}
+            <button (click)="aumentarCantidad(producto)">+</button>
+          </div>
+
+          <p>Precio unitario: ${{ producto.precio | number: '1.0-0' }}</p>
+          <p><strong>Subtotal:</strong> ${{ producto.precio * producto.cantidad | number: '1.0-0' }}</p>
+        </div>
+      </div>
+
+      <hr />
+      <p class="total">
+        <strong>Total a pagar:</strong> ${{ obtenerTotal() | number: '1.0-0' }}
+      </p>
+
+      <!-- Botón para ir a finalizar compra -->
+     <button (click)="irAFinalizarCompra()" class="btn-finalizar">
+  🧾 Finalizar compra
+</button>
+    </div>
+  </div>
+
+  <!-- Botones para continuar luego de la compra -->
+  <div *ngIf="compraRealizada" class="acciones-post-compra">
+    <button (click)="irAProductos()" class="btn-volver">
+      🛍️ Volver a la tienda
+    </button>
+
+    <button (click)="irAFacturas()" class="btn-facturas">
+      📄 Ver mis facturas
+    </button>
+  </div>
+</div>

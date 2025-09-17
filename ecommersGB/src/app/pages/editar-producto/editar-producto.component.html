@@ -1,0 +1,17 @@
+<div class="container mt-4">
+  <h2>Editar Producto</h2>
+
+  <form (ngSubmit)="guardarCambios()" #form="ngForm">
+    <input type="text" name="nombre" [(ngModel)]="producto.nombre" placeholder="Nombre" required />
+    <input type="text" name="descripcion" [(ngModel)]="producto.descripcion" placeholder="Descripción" />
+    <input type="number" name="precio" [(ngModel)]="producto.precio" placeholder="Precio" required />
+    <input type="number" name="stock" [(ngModel)]="producto.stock" placeholder="Stock disponible" required />
+    <input type="text" name="imagen" [(ngModel)]="producto.imagen" placeholder="URL de imagen" />
+
+    <button type="submit">Guardar cambios</button>
+  </form>
+
+  <div *ngIf="mensaje" class="confirmacion">
+    ✅ {{ mensaje }}
+  </div>
+</div>
