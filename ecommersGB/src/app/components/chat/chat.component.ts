@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 
-import { getFirebase } from '../../firebase.init'; 
+import { getFirebase } from '../../firebase.init';
 
 import {
   onAuthStateChanged,
@@ -18,10 +18,11 @@ import {
   push,
   query,
   orderByChild,
-  Database
+  Database,
+  get
 } from 'firebase/database';
 
-type UsersMap = Record<string, { displayName?: string; email?: string }>;
+type UsersMap = Record<string, { displayName?: string; email?: string; role?: 'user' | 'admin' | 'moderator' }>;
 
 interface ChatMsg {
   id: string;
@@ -74,11 +75,14 @@ export class ChatComponent implements OnInit, OnDestroy {
     this.auth = auth;
     this.db = db;
 
-    this.authUnsub = onAuthStateChanged(this.auth, (user: User | null) => {
+    this.authUnsub = onAuthStateChanged(this.auth, async (user: User | null) => {
       this.isLoggedIn = !!user;
       this.currentUid = user?.uid ?? null;
 
       if (this.isLoggedIn) {
+        // Asegurar rol por defecto en el primer ingreso de sesión
+        await this.ensureDefaultRole();
+
         this.subUsers();
         this.subMensajes();
       } else {
@@ -100,7 +104,7 @@ export class ChatComponent implements OnInit, OnDestroy {
     if (!this.db) return;
     const cb = (snap: any) => {
       this.usersMap = snap.val() ?? {};
-      this.chats = [...this.chats]; // refresca vista
+      this.chats = [...this.chats]; // refresca vista para resolver nombre/rol retroactivamente
     };
     const ref = dbRef(this.db, 'users');
     onValue(ref, cb);
@@ -136,12 +140,16 @@ export class ChatComponent implements OnInit, OnDestroy {
       const cred = await signInWithEmailAndPassword(this.auth, email, password);
       const uid = cred.user.uid;
 
+      // displayName/email
       const alias = (username ?? '').toString().trim();
       if (alias.length >= 3 && alias.length <= 24) {
         await update(dbRef(this.db, `users/${uid}`), { displayName: alias, email });
       } else {
         await update(dbRef(this.db, `users/${uid}`), { email });
       }
+
+      // rol por defecto si falta
+      await this.ensureDefaultRole(uid);
     } catch (e: any) {
       this.loginErrorMsg = e?.message ?? 'Error al iniciar sesión';
     } finally {
@@ -157,6 +165,7 @@ export class ChatComponent implements OnInit, OnDestroy {
     const message: string = (this.form.value.message ?? '').toString().trim();
     if (!message) return;
 
+    // si el usuario escribió alias, sincronizar
     const alias = (this.form.value.username ?? '').toString().trim();
     if (alias.length >= 3 && alias.length <= 24) {
       await update(dbRef(this.db, `users/${this.currentUid}`), { displayName: alias });
@@ -174,4 +183,21 @@ export class ChatComponent implements OnInit, OnDestroy {
   // -------- HELPERS ----------
   trackById(_i: number, m: ChatMsg) { return m.id; }
   nombreDe(uid: string) { return this.usersMap[uid]?.displayName || 'Anon'; }
+  rolDe(uid: string): 'user' | 'admin' | 'moderator' {
+    const r = this.usersMap[uid]?.role;
+    return (r === 'admin' || r === 'moderator') ? r : 'user';
+  }
+
+  // -------- UTIL: asegurar rol por defecto ----------
+  private async ensureDefaultRole(forceUid?: string) {
+    if (!this.db) return;
+    const uid = forceUid ?? this.currentUid;
+    if (!uid) return;
+
+    const roleSnap = await get(dbRef(this.db, `users/${uid}/role`));
+    if (!roleSnap.exists()) {
+      // Reglas permiten que el propio usuario cree 'role' solo si no existe y sea 'user'
+      await update(dbRef(this.db, `users/${uid}`), { role: 'user' });
+    }
+  }
 }

@@ -30,12 +30,16 @@
     </div>
 
     <div id="history" class="history">
-      <div *ngFor="let chat of chats; trackBy: trackById"
-           class="msg"
-           [ngClass]="{ me: chat.uid === currentUid, other: chat.uid !== currentUid }">
+      <div
+        *ngFor="let chat of chats; trackBy: trackById"
+        class="msg"
+        [ngClass]="{ me: chat.uid === currentUid, other: chat.uid !== currentUid }"
+      >
         <div class="bubble">
           <div class="meta">
             <b>{{ nombreDe(chat.uid) }}</b>
+            <span class="sep">·</span>
+            <span class="role-badge" [ngClass]="rolDe(chat.uid)">{{ rolDe(chat.uid) }}</span>
             <span class="sep">·</span>
             <span class="time">{{ chat.timestamp | date:'short' }}</span>
           </div>
@@ -47,7 +51,12 @@
     <form id="message" class="composer" [formGroup]="form" (ngSubmit)="send()">
       <input type="text" formControlName="username" placeholder="Tu alias (opcional)" />
       <div class="send-box">
-        <input type="text" formControlName="message" placeholder="Escribe un mensaje…" autocomplete="off" />
+        <input
+          type="text"
+          formControlName="message"
+          placeholder="Escribe un mensaje…"
+          autocomplete="off"
+        />
         <button type="submit" [disabled]="form.invalid || !form.value.message?.trim()">Enviar</button>
       </div>
     </form>
