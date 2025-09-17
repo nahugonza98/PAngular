@@ -1,13 +1,13 @@
 import { createRequire } from 'module';const require = createRequire(import.meta.url);
 import {
+  HTTP_ROOT_INTERCEPTOR_FNS
+} from "./chunk-MXONK7T5.js";
+import {
   BrowserDomAdapter,
   BrowserModule,
   EVENT_MANAGER_PLUGINS,
   EventManagerPlugin
 } from "./chunk-44OCBFDC.js";
-import {
-  HTTP_ROOT_INTERCEPTOR_FNS
-} from "./chunk-MXONK7T5.js";
 import {
   NullViewportScroller,
   PlatformLocation,
@@ -16838,4 +16838,4 @@ export {
    * License: MIT
    *)
 */
-//# sourceMappingURL=chunk-B7HPO4BI.js.map
+//# sourceMappingURL=chunk-IAZSVPCJ.js.map

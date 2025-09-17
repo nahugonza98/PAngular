@@ -1,3 +1,11 @@
+<div *ngIf="!(auth.user$ | async); else chatUI">
+  <!-- formulario login/registro -->
+</div>
+<ng-template #chatUI>
+  <!-- tu chat normal -->
+</ng-template>
+
+
 <mat-card class="chat-shell">
   <mat-card-header class="chat-header">
     <div class="title">

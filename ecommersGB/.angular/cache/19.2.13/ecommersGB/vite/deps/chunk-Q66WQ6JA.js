@@ -1,13 +1,13 @@
 import {
+  BidiModule
+} from "./chunk-QJLKULX2.js";
+import {
   Platform,
   _CdkPrivateStyleLoader,
   _bindEventWithOptions,
   coerceElement,
   coerceNumberProperty
-} from "./chunk-AP4NL3E4.js";
-import {
-  BidiModule
-} from "./chunk-QJLKULX2.js";
+} from "./chunk-DMOIWDIR.js";
 import {
   DOCUMENT
 } from "./chunk-JUTHKYN4.js";
@@ -60,6 +60,37 @@ import {
 import {
   __spreadValues
 } from "./chunk-5K356HEJ.js";
+
+// node_modules/@angular/cdk/fesm2022/private.mjs
+var _VisuallyHiddenLoader = class __VisuallyHiddenLoader {
+  static ɵfac = function _VisuallyHiddenLoader_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || __VisuallyHiddenLoader)();
+  };
+  static ɵcmp = ɵɵdefineComponent({
+    type: __VisuallyHiddenLoader,
+    selectors: [["ng-component"]],
+    exportAs: ["cdkVisuallyHidden"],
+    decls: 0,
+    vars: 0,
+    template: function _VisuallyHiddenLoader_Template(rf, ctx) {
+    },
+    styles: [".cdk-visually-hidden{border:0;clip:rect(0 0 0 0);height:1px;margin:-1px;overflow:hidden;padding:0;position:absolute;width:1px;white-space:nowrap;outline:0;-webkit-appearance:none;-moz-appearance:none;left:0}[dir=rtl] .cdk-visually-hidden{left:auto;right:0}\n"],
+    encapsulation: 2,
+    changeDetection: 0
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(_VisuallyHiddenLoader, [{
+    type: Component,
+    args: [{
+      exportAs: "cdkVisuallyHidden",
+      encapsulation: ViewEncapsulation.None,
+      template: "",
+      changeDetection: ChangeDetectionStrategy.OnPush,
+      styles: [".cdk-visually-hidden{border:0;clip:rect(0 0 0 0);height:1px;margin:-1px;overflow:hidden;padding:0;position:absolute;width:1px;white-space:nowrap;outline:0;-webkit-appearance:none;-moz-appearance:none;left:0}[dir=rtl] .cdk-visually-hidden{left:auto;right:0}\n"]
+    }]
+  }], null, null);
+})();
 
 // node_modules/@angular/cdk/fesm2022/observers.mjs
 function shouldIgnoreRecord(record) {
@@ -898,37 +929,6 @@ var CdkMonitorFocus = class _CdkMonitorFocus {
       type: Output
     }]
   });
-})();
-
-// node_modules/@angular/cdk/fesm2022/private.mjs
-var _VisuallyHiddenLoader = class __VisuallyHiddenLoader {
-  static ɵfac = function _VisuallyHiddenLoader_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || __VisuallyHiddenLoader)();
-  };
-  static ɵcmp = ɵɵdefineComponent({
-    type: __VisuallyHiddenLoader,
-    selectors: [["ng-component"]],
-    exportAs: ["cdkVisuallyHidden"],
-    decls: 0,
-    vars: 0,
-    template: function _VisuallyHiddenLoader_Template(rf, ctx) {
-    },
-    styles: [".cdk-visually-hidden{border:0;clip:rect(0 0 0 0);height:1px;margin:-1px;overflow:hidden;padding:0;position:absolute;width:1px;white-space:nowrap;outline:0;-webkit-appearance:none;-moz-appearance:none;left:0}[dir=rtl] .cdk-visually-hidden{left:auto;right:0}\n"],
-    encapsulation: 2,
-    changeDetection: 0
-  });
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(_VisuallyHiddenLoader, [{
-    type: Component,
-    args: [{
-      exportAs: "cdkVisuallyHidden",
-      encapsulation: ViewEncapsulation.None,
-      template: "",
-      changeDetection: ChangeDetectionStrategy.OnPush,
-      styles: [".cdk-visually-hidden{border:0;clip:rect(0 0 0 0);height:1px;margin:-1px;overflow:hidden;padding:0;position:absolute;width:1px;white-space:nowrap;outline:0;-webkit-appearance:none;-moz-appearance:none;left:0}[dir=rtl] .cdk-visually-hidden{left:auto;right:0}\n"]
-    }]
-  }], null, null);
 })();
 
 // node_modules/@angular/cdk/fesm2022/array-I1yfCXUO.mjs
@@ -2734,8 +2734,13 @@ var MatCommonModule = class _MatCommonModule {
 })();
 
 export {
+  isFakeMousedownFromScreenReader,
+  isFakeTouchstartFromScreenReader,
+  _getEventTarget,
+  normalizePassiveListenerOptions,
+  FocusMonitor,
   ObserversModule,
   _IdGenerator,
   MatCommonModule
 };
-//# sourceMappingURL=chunk-V5ADTQEA.js.map
+//# sourceMappingURL=chunk-Q66WQ6JA.js.map
