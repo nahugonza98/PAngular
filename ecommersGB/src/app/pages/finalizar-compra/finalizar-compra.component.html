@@ -3,7 +3,15 @@
 
 
 <!-- Padre envia al input de factura preview -->
-<app-factura-preview
+<!-- <app-factura-preview
   [productos]="productosSeleccionados"
   (confirmarCompra)="confirmarCompra()"
 ></app-factura-preview>
+ -->
+
+
+ <app-factura-preview
+  [productos]="productosSeleccionados"
+  (confirmarCompra)="confirmarCompra($event)"
+></app-factura-preview>
+
