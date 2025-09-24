@@ -98,9 +98,18 @@ router.post('/', async (req, res) => {
 router.get('/', async (_req, res) => {
   try {
     const [rows] = await db.query(
-      `SELECT f.id, f.fecha, f.total AS total_ars, f.total_usd, f.tipo_cambio, f.estado
-         FROM facturas f
-        ORDER BY f.fecha DESC`
+      ` SELECT f.id,
+         f.fecha,
+         f.total AS total,            
+         f.total_usd,
+         f.tipo_cambio,
+         f.estado,
+         f.cliente_id,
+         f.cliente_nombre,
+         f.cliente_email,
+         (SELECT COUNT(*) FROM factura_detalle d WHERE d.factura_id = f.id) AS items_count
+    FROM facturas f
+   ORDER BY f.fecha DESC`
     );
     res.json(rows);
   } catch (e) {

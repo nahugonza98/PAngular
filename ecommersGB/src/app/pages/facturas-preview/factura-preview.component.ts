@@ -10,6 +10,7 @@ type InvoiceItemPayload = {
   subtotal_ars: number;
   precio_unit_usd: number;   // 0 si no hay tipo_cambio aún
   subtotal_usd: number;      // 0 si no hay tipo_cambio aún
+   cliente_email?: string | null;
 };
 
 type InvoicePayload = {
@@ -20,6 +21,7 @@ type InvoicePayload = {
   total_ars: number;
   total_usd: number;         // 0 si no hay tipo_cambio
   items: InvoiceItemPayload[];
+  cliente_email?: string | null;
 };
 
 @Component({
@@ -92,7 +94,7 @@ export class FacturaPreviewComponent implements OnInit {
     const payload: InvoicePayload = {
       fecha: new Date().toISOString(),
       cliente_id: null,
-      cliente_nombre: 'Invitado',
+      cliente_nombre: null,
       tipo_cambio: fx,
       total_ars: this.round2(this.obtenerTotal()),
       total_usd: this.round2(this.obtenerTotalUSD()),

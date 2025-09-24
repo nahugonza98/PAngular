@@ -16,13 +16,21 @@
       <th>ID</th>
       <th>Fecha</th>
       <th>Total</th>
+      <th>Total_USD</th>
+      <th>Cliente</th>
+      <th>Email</th>
+
     </tr>
   </thead>
   <tbody>
     <tr *ngFor="let factura of facturas | filtroFactura:filtroFactura">
       <td>{{ factura.id }}</td>
       <td>{{ factura.fecha | date: 'short' }}</td>
-      <td>$ {{ factura.total | number: '1.2-2' }}</td>
+<td>$ {{ (factura.total || factura.total_ars) | number:'1.2-2' }}</td>
+      <td>$ {{ (factura.total_usd || factura.total_usd) | number: '1.2-2' }}</td>
+      <td>{{ factura.cliente_nombre || '—' }}</td>
+      <td>{{ factura.cliente_email || '—' }}</td>
+
     </tr>
   </tbody>
 </table>

@@ -4,8 +4,8 @@ const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
 
-const productosRoutes = require('./routes/productos.routes'); // ✅ Primero requerís
-const facturasRouter = require('./routes/facturas');           // ✅ ambos routers
+const productosRoutes = require('./routes/productos.routes');
+const facturasRouter = require('./routes/facturas');        
 const usuariosRouter = require('./routes/usuarios');
 const loginRouter = require('./routes/login');
 

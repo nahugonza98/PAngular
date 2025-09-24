@@ -45,16 +45,39 @@ export class LoginComponent {
 
   this.http.post<any>('http://localhost:4000/api/login', credenciales).subscribe({
     next: (res) => {
-      localStorage.setItem('usuarioActual', JSON.stringify(res.usuario));
 
-      this.router.navigate(['/productos']).then(() => {
-        window.location.reload(); 
-      });
+      // el back puede responder { usuario: {...} } o el objeto directo
+      const u = res?.usuario ?? res;
+
+      // normalizamos lo que guardamos
+      const safeUser = {
+        id: Number(u?.id),
+        email: String(u?.email || ''),
+        nombre: u?.nombre ? String(u.nombre) : null,
+        rol: u?.rol ? String(u.rol) : 'user'
+      };
+
+      // clave estándar que usaremos en la compra
+      localStorage.setItem('usuario', JSON.stringify(safeUser));
+      // (opcional) mantén tu clave anterior por compatibilidad
+      localStorage.setItem('usuarioActual', JSON.stringify(safeUser));
+
+      // navegá una sola vez
+      this.router.navigate(['/productos']); 
+      // si querés forzar recarga, usá esta línea en lugar de la de arriba:
+      // this.router.navigate(['/productos']).then(() => window.location.reload());
+
+
+       // guardamos el usuario
+  localStorage.setItem('usuario', JSON.stringify(safeUser));
+  localStorage.setItem('usuarioActual', JSON.stringify(safeUser)); // opcional/compat
+
+  // UNA sola navegación + reload para que el navbar lea el user
+  this.router.navigate(['/productos']).then(() => window.location.reload());
     },
     error: () => {
       this.mensaje = '❌ Email o contraseña incorrectos.';
     }
   });
 }
-
 }
