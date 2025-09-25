@@ -8,6 +8,7 @@ const productosRoutes = require('./routes/productos.routes');
 const facturasRouter = require('./routes/facturas');        
 const usuariosRouter = require('./routes/usuarios');
 const loginRouter = require('./routes/login');
+const reportesRouter = require('./routes/reportes');
 
 const app = express();
 
@@ -20,6 +21,7 @@ app.use('/api/productos', productosRoutes);
 app.use('/facturas', facturasRouter);
 app.use('/api/usuarios', usuariosRouter);
 app.use('/api/login', loginRouter);
+app.use('/reportes', reportesRouter);
 
 // Ruta de prueba
 app.get('/', (req, res) => {

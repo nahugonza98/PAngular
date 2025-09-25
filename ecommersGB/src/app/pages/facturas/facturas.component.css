@@ -40,3 +40,64 @@
   border-color: #0056b3;
   outline: none;
 }
+
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.toolbar .buscador { flex: 1; }
+.btn.btn-primary {
+  padding: 6px 12px;
+  cursor: pointer;
+}
+
+
+/* contenedor */
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.toolbar .buscador { flex: 1; }
+
+/* igualamos alturas */
+:root { --control-h: 40px; }            /* ajustá si tu input es más alto */
+.search-input { height: var(--control-h); }
+
+/* botón con estilo de input */
+.btn-like-input {
+  height: var(--control-h);
+  padding: 0 14px;
+  background: #fff;
+  color: #0d6efd;                        /* mismo tono que el borde de focus */
+  border: 1px solid #ced4da;             /* borde de input normal */
+  border-radius: 6px;
+  font-weight: 500;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: border-color .15s, box-shadow .15s, background .15s;
+}
+
+/* hover/active/focus como el input */
+.btn-like-input:hover { background: #f8f9fa; border-color: #b6bec6; }
+.btn-like-input:active { background: #eef1f4; }
+.btn-like-input:focus-visible {
+  outline: 0;
+  border-color: #86b7fe;                 /* borde azul de focus */
+  box-shadow: 0 0 0 .2rem rgba(13,110,253,.25);
+}
+
+/* estado disabled */
+.btn-like-input:disabled {
+  opacity: .6;
+  cursor: not-allowed;
+}
+
+

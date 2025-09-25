@@ -10,9 +10,12 @@ export class FacturaService {
 
   constructor(private http: HttpClient) {}
 
-  /* guardarFactura(factura: any): Observable<any> {
-    return this.http.post(this.apiUrl, factura);
-  } */
+// Descarga el CSV de facturas (fecha, cliente, productos, total)
+descargarFacturasCSV() {
+  return this.http.get('http://localhost:4000/reportes/facturas.csv', {
+    responseType: 'blob'
+  });
+}
 
   guardarFactura(payload: any) {
     return this.http.post<{ invoice_id: number }>(`${this.apiUrl}`, payload);

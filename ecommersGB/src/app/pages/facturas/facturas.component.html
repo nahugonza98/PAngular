@@ -1,15 +1,21 @@
 <h2 class="titulo">Facturas generadas</h2>
 
 <!-- Input de búsqueda -->
-<div class="buscador">
-  <input
-    type="text"
-    [(ngModel)]="filtroFactura"
-    placeholder="🔍 Buscar por ID..."
-    class="form-control"
-  />
-</div>
 
+<div class="toolbar">
+  <div class="buscador">
+    <input
+      type="text"
+      [(ngModel)]="filtroFactura"
+      placeholder="🔍 Buscar por ID..."
+      class="form-control"
+    />
+  </div>
+
+<button class="btn-like-input" (click)="exportarCSV()" [disabled]="descargandoCsv">
+    Exportar CSV
+  </button>
+</div>
 <table class="tabla-facturas" *ngIf="facturas.length > 0; else sinDatos">
   <thead>
     <tr>
@@ -18,7 +24,6 @@
       <th>Total</th>
       <th>Total_USD</th>
       <th>Cliente</th>
-      <th>Email</th>
 
     </tr>
   </thead>
@@ -29,7 +34,6 @@
 <td>$ {{ (factura.total || factura.total_ars) | number:'1.2-2' }}</td>
       <td>$ {{ (factura.total_usd || factura.total_usd) | number: '1.2-2' }}</td>
       <td>{{ factura.cliente_nombre || '—' }}</td>
-      <td>{{ factura.cliente_email || '—' }}</td>
 
     </tr>
   </tbody>
