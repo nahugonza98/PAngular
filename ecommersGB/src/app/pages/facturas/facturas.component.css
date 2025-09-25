@@ -1,103 +1,80 @@
+/* Título */
 .titulo {
   font-size: 1.6rem;
   margin-bottom: 1rem;
 }
 
+/* Tabla */
 .tabla-facturas {
   width: 100%;
   border-collapse: collapse;
   margin-top: 1rem;
 }
-
 .tabla-facturas th,
 .tabla-facturas td {
   border: 1px solid #ccc;
   padding: 8px;
   text-align: center;
 }
-
 .tabla-facturas th {
   background-color: #f4f4f4;
 }
 
-.buscador {
+/* Toolbar (buscador + botón) */
+.toolbar {
   display: flex;
-  justify-content: flex-end;
-  margin: 0 30px 20px 0;
+  align-items: center;     /* centra verticalmente input y botón */
+  gap: 16px;
+  margin: 12px 0;
+}
+.toolbar .buscador {
+  flex: 1;                 /* el input ocupa todo el ancho disponible */
 }
 
-.buscador input {
-  padding: 10px 12px;
-  border: 2px solid #007bff;
+/* Input del buscador (altura y foco coherentes) */
+.buscador .form-control {
+  height: 44px;
+  padding: 0 12px;
+  font-size: 14px;
+  border: 1px solid #ced4da;
   border-radius: 8px;
-  font-size: 1rem;
-  width: 280px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  transition: border-color 0.2s ease;
+  transition: border-color .15s, box-shadow .15s;
 }
-
-.buscador input:focus {
-  border-color: #0056b3;
-  outline: none;
-}
-
-
-.toolbar {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 12px;
-}
-.toolbar .buscador { flex: 1; }
-.btn.btn-primary {
-  padding: 6px 12px;
-  cursor: pointer;
-}
-
-
-/* contenedor */
-.toolbar {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 12px;
-}
-.toolbar .buscador { flex: 1; }
-
-/* igualamos alturas */
-:root { --control-h: 40px; }            /* ajustá si tu input es más alto */
-.search-input { height: var(--control-h); }
-
-/* botón con estilo de input */
-.btn-like-input {
-  height: var(--control-h);
-  padding: 0 14px;
-  background: #fff;
-  color: #0d6efd;                        /* mismo tono que el borde de focus */
-  border: 1px solid #ced4da;             /* borde de input normal */
-  border-radius: 6px;
-  font-weight: 500;
-  line-height: 1;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  transition: border-color .15s, box-shadow .15s, background .15s;
-}
-
-/* hover/active/focus como el input */
-.btn-like-input:hover { background: #f8f9fa; border-color: #b6bec6; }
-.btn-like-input:active { background: #eef1f4; }
-.btn-like-input:focus-visible {
+.buscador .form-control:focus {
   outline: 0;
-  border-color: #86b7fe;                 /* borde azul de focus */
+  border-color: #86b7fe;
   box-shadow: 0 0 0 .2rem rgba(13,110,253,.25);
 }
 
-/* estado disabled */
-.btn-like-input:disabled {
+/* Botón Exportar CSV (look primario) */
+.csv-btn {
+  height: 44px;                  /* misma altura que el input */
+  min-width: 170px;
+  padding: 0 16px;
+  border-radius: 8px;
+  border: 1px solid #0d6efd;
+  background: #0d6efd;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0,0,0,.06);
+  transition: background .15s, border-color .15s, box-shadow .15s;
+}
+.csv-btn:hover {
+  background: #0b62e5;
+  border-color: #0b62e5;
+}
+.csv-btn:focus-visible {
+  outline: 0;
+  box-shadow: 0 0 0 .2rem rgba(13,110,253,.25);
+}
+.csv-btn:disabled {
   opacity: .6;
   cursor: not-allowed;
 }
-
-

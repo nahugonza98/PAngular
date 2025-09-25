@@ -3,7 +3,7 @@
 <!-- Input de búsqueda -->
 
 <div class="toolbar">
-  <div class="buscador">
+   <div class="buscador">
     <input
       type="text"
       [(ngModel)]="filtroFactura"
@@ -12,9 +12,10 @@
     />
   </div>
 
-<button class="btn-like-input" (click)="exportarCSV()" [disabled]="descargandoCsv">
+  <button type="button" class="csv-btn" (click)="exportarCSV()" [disabled]="descargandoCsv">
     Exportar CSV
   </button>
+
 </div>
 <table class="tabla-facturas" *ngIf="facturas.length > 0; else sinDatos">
   <thead>
@@ -31,7 +32,7 @@
     <tr *ngFor="let factura of facturas | filtroFactura:filtroFactura">
       <td>{{ factura.id }}</td>
       <td>{{ factura.fecha | date: 'short' }}</td>
-<td>$ {{ (factura.total || factura.total_ars) | number:'1.2-2' }}</td>
+      <td>$ {{ (factura.total || factura.total_ars) | number:'1.2-2' }}</td>
       <td>$ {{ (factura.total_usd || factura.total_usd) | number: '1.2-2' }}</td>
       <td>{{ factura.cliente_nombre || '—' }}</td>
 
