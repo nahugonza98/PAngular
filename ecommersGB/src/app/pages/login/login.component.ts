@@ -47,16 +47,12 @@ export class LoginComponent {
     try {
       const user: AppUser = await this.auth.login(email, password);
 
-      // Feedback visual
       this.mostrarToast = true;
       setTimeout(() => (this.mostrarToast = false), 2000);
 
-      // Navegación según rol
-      if (user.role === 'admin' || user.role === 'moderator') {
-        this.router.navigate(['/admin']);
-      } else {
-        this.router.navigate(['/']);
-      }
+      // 🔥 Solución 3: navegar siempre a /productos después del login
+      setTimeout(() => this.router.navigate(['/productos']), 0);
+
     } catch (err: any) {
       console.error('Error de login (componente):', err?.code || err);
       this.mensaje = this.mapError(err);
