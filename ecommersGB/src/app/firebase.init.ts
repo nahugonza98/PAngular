@@ -3,7 +3,7 @@ import { environment } from '../environments/environments';
 export type FirebaseKit = {
   app: import('firebase/app').FirebaseApp;
   auth: import('firebase/auth').Auth;
-  database: import('firebase/database').Database; // ✅ CAMBIO: era "db", ahora "database"
+  database: import('firebase/database').Database; // 
 };
 
 let cached: FirebaseKit | null = null;

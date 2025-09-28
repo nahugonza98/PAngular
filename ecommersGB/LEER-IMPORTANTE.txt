@@ -1,0 +1,31 @@
+Se deja README con datos del proyecto.
+
+Components Creados:
+
+Chat - Estadísticas
+
+Components Modificados:
+
+Factura: Se añadió botón de estadísticas/Exportar CSV
+NavBar: Se incluyo el chat
+
+Modificaciones:
+
+Se migro authenticacion de usuarios con XAMPP, y se migro a Firebase:
+
+Usuarios Disponibles:
+
+ADMIN: nahuelgb@gb.com (Ve features de ADMIN)
+MODERATOR: moderator@moderator.com (Rol de Chat)
+USER: usuario@usuario.com (User común)
+
+PW: asd123
+
+Se quito DB en XAMPP y se migro a Firebase
+Código Comentado para Guia.
+Se levanta host con firebase:
+
+	"ng build --configuration production"
+	"firebase deploy --only hosting"
+
+
