@@ -10,6 +10,7 @@ import { IngresarProductoComponent } from './pages/ingresar-producto/ingresar-pr
 import { RegistroComponent } from './pages/registro/registro.component';
 import { LoginComponent } from './pages/login/login.component';
 import { ChatComponent } from './components/chat/chat.component';
+import { EstadisticasComponent } from './pages/estadisticas/estadisticas.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'productos', pathMatch: 'full' },
@@ -22,11 +23,8 @@ export const routes: Routes = [
   { path: 'registro', component: RegistroComponent },
   { path: 'facturas', component: FacturasComponent },
   { path: 'login', component: LoginComponent },
-  { path: 'chat', component: ChatComponent }
-
-
-
-
+  { path: 'chat', component: ChatComponent },
+  { path: 'estadisticas', component: EstadisticasComponent }
 ];
 
 

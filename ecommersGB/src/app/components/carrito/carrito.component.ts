@@ -1,31 +1,40 @@
 import { Component, OnInit } from '@angular/core';
-import { CarritoService } from '../../servicios/carrito.service';
 import { CommonModule } from '@angular/common';
-import { Producto } from '../../servicios/productos.service';
 import { Router } from '@angular/router';
-import { FacturaService } from '../../servicios/factura.service'; // ← RTDB
+import { HttpClient, HttpClientModule } from '@angular/common/http';
+
+import { CarritoService } from '../../servicios/carrito.service';
+import { FacturaService } from '../../servicios/factura.service'; // RTDB
+import { Producto } from '../../servicios/productos.service';
 
 @Component({
   standalone: true,
   selector: 'app-carrito',
   templateUrl: './carrito.component.html',
   styleUrls: ['./carrito.component.css'],
-  imports: [ CommonModule ],
+  imports: [CommonModule, HttpClientModule],
 })
 export class CarritoComponent implements OnInit {
   productosEnCarrito: ProductoCarrito[] = [];
   compraRealizada = false;
 
+  // cotización del USD (venta) — se usa para totalUSD
+  cotizacionUSD: number | null = null;
+  cargandoCotizacion = false;
+
   constructor(
     private carritoService: CarritoService,
     private router: Router,
-    private facturaSrv: FacturaService, // ← inyectamos el service RTDB
+    private facturaSrv: FacturaService,
+    private http: HttpClient
   ) {}
 
   ngOnInit(): void {
     this.productosEnCarrito = this.carritoService.obtenerProductos();
+    this.obtenerCotizacionUSD();
   }
 
+  // -------- helpers de UI --------
   obtenerTotal(): number {
     return this.productosEnCarrito.reduce(
       (acc, prod) => acc + prod.precio * prod.cantidad,
@@ -47,7 +56,24 @@ export class CarritoComponent implements OnInit {
   irAFacturas()  { this.router.navigate(['/facturas']); }
   irAFinalizarCompra() { this.router.navigate(['/finalizar-compra']); }
 
-  // === RTDB ===
+  // -------- cotización del dólar --------
+  private async obtenerCotizacionUSD() {
+    try {
+      this.cargandoCotizacion = true;
+      // Oficial venta (DolarApi)
+      const res: any = await this.http
+        .get('https://dolarapi.com/v1/dolares/oficial')
+        .toPromise();
+      this.cotizacionUSD = Number(res?.venta) || null;
+    } catch (err) {
+      console.error('Error al obtener cotización DolarApi:', err);
+      this.cotizacionUSD = null; // seguimos sin frenar la compra
+    } finally {
+      this.cargandoCotizacion = false;
+    }
+  }
+
+  // -------- finalizar compra (guarda en RTDB) --------
   async finalizarCompra(): Promise<void> {
     const productos = this.carritoService.obtenerProductos();
     if (productos.length === 0) {
@@ -60,22 +86,44 @@ export class CarritoComponent implements OnInit {
       0
     );
 
-    // armamos los items como espera RTDB
+    // armamos los items como espera RTDB (con nombre!)
     const items = productos.map(p => ({
       producto_id: p.id,
-      producto_nombre: p.nombre,
+      producto_nombre: p.nombre,          // ✅ nombre persistido
       cantidad: p.cantidad,
       precio_unitario: p.precio,
       subtotal_ars: p.cantidad * p.precio,
     }));
+
+    // cliente (opcional): ejemplo simple desde localStorage si lo tenés guardado
+    let cliente: { id?: number | null; nombre?: string | null } | undefined;
+    try {
+      const raw = localStorage.getItem('usuario'); // ajustá la key a tu app
+      if (raw) {
+        const u = JSON.parse(raw);
+        cliente = {
+          id: u?.id ?? null,
+          nombre: u?.nombre ?? u?.email ?? null,
+        };
+      }
+    } catch {
+      cliente = undefined;
+    }
+
+    // totalUSD si tenemos tipo_cambio válido
+    const tipo_cambio = this.cotizacionUSD ?? null;
+    const totalUSD =
+      tipo_cambio && tipo_cambio > 0 ? Number((totalARS / tipo_cambio).toFixed(2)) : null;
 
     try {
       await this.facturaSrv.guardarFacturaEnRTDB({
         totalARS,
         estado: 'PAGADA',
         items,
-        // si querés: cliente: { id: ..., nombre: ... },
-        fecha: new Date(),
+        tipo_cambio,       // ✅ queda guardado en la factura
+        totalUSD,          // ✅ idem
+        cliente,           // ✅ opcional
+        fecha: new Date(), // el service usa esto para ts/fechaISO
       });
 
       this.carritoService.vaciarCarrito();

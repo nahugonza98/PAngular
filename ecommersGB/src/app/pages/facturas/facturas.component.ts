@@ -2,15 +2,16 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
+import { RouterModule } from '@angular/router'; 
 
 import { FacturaService, FacturaRTDB } from '../../servicios/factura.service';
-import { FiltroNombrePipe } from '../../pages/pipes/filtro-nombre.pipe';
 import { FiltroFacturaPipe } from '../../pages/pipes/filtro-factura.pipe';
 
 @Component({
   selector: 'app-facturas',
   standalone: true,
-  imports: [CommonModule, FormsModule, FiltroFacturaPipe],
+  imports: [CommonModule, FormsModule, FiltroFacturaPipe,
+    RouterModule,],
   templateUrl: './facturas.component.html',
   styleUrls: ['./facturas.component.css']
 })

@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { getFirebase } from '../firebase.init';
+import { get, ref, getDatabase } from 'firebase/database';
 
 export interface AppUser {
   uid: string;
@@ -18,23 +19,32 @@ export class AuthService {
   constructor() {}
 
   async login(email: string, password: string): Promise<AppUser> {
-    
-    const { auth } = await getFirebase();
+  const { auth, database } = await getFirebase(); // database = RTDB
 
-    const cred = await signInWithEmailAndPassword(auth, email, password);
-    const user = cred.user;
+  const cred = await signInWithEmailAndPassword(auth, email, password);
+  const user = cred.user;
 
-    const usuario: AppUser = {
-      uid: user.uid,
-      email: user.email,
-      rol: 'admin', // más adelante cargar desde la DB
-    };
-    localStorage.setItem('usuarioActual', JSON.stringify(usuario));
+  // 🔍 Traer datos del usuario desde RTDB (/users/{uid})
+  const dbRef = ref(database, `users/${user.uid}`);
+  const snapshot = await get(dbRef);
 
+  let rol: string = 'buyer'; // Rol por defecto
 
-    this.usuarioSubject.next(usuario);
-    return usuario;
+  if (snapshot.exists()) {
+    const data = snapshot.val();
+    rol = data.role || 'buyer'; // si no tiene campo 'role', usar 'buyer'
   }
+
+  const usuario: AppUser = {
+    uid: user.uid,
+    email: user.email,
+    rol: rol,
+  };
+
+   localStorage.setItem('usuarioActual', JSON.stringify(usuario));
+  this.usuarioSubject.next(usuario);
+  return usuario;
+}
   
   logout(): void {
     this.usuarioSubject.next(null);

@@ -3,7 +3,7 @@ import { environment } from '../environments/environments';
 export type FirebaseKit = {
   app: import('firebase/app').FirebaseApp;
   auth: import('firebase/auth').Auth;
-  db: import('firebase/database').Database;
+  database: import('firebase/database').Database; // ✅ CAMBIO: era "db", ahora "database"
 };
 
 let cached: FirebaseKit | null = null;
@@ -20,7 +20,7 @@ export async function getFirebase(): Promise<FirebaseKit> {
   cached = {
     app,
     auth: getAuth(app),
-    db: getDatabase(app),
+    database: getDatabase(app), // ✅ CAMBIO
   };
   return cached;
 }
@@ -30,8 +30,8 @@ export async function getFirebase(): Promise<FirebaseKit> {
 /** Devuelve una referencia a un path de la Realtime Database */
 export async function getDbReference(path: string) {
   const { ref } = await import('firebase/database');
-  const { db } = await getFirebase();
-  return ref(db, path);
+  const { database } = await getFirebase(); // ✅ CAMBIO
+  return ref(database, path);
 }
 
 /** Lee una vez el valor de un nodo (una snapshot puntual) */

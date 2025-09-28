@@ -4,6 +4,7 @@
     "@angular/cdk": "^20.2.3",
     "@angular/fire": "^20.0.1",
     "@angular/material": "^20.2.3",
+    "chart.js": "^4.5.0",
     "firebase": "^11.10.0"
   }
 }

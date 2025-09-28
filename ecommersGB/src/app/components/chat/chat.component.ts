@@ -71,9 +71,9 @@ export class ChatComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit() {
-    const { auth, db } = await getFirebase();
+    const { auth, database } = await getFirebase();
     this.auth = auth;
-    this.db = db;
+    this.db = database;
 
     this.authUnsub = onAuthStateChanged(this.auth, async (user: User | null) => {
       this.isLoggedIn = !!user;

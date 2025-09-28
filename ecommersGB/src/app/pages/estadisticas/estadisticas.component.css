@@ -1,0 +1,62 @@
+.container {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 0 20px;
+  text-align: center;
+}
+
+/* Título sin emoji duplicado */
+.titulo-grafico {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+/* Botonera de filtros */
+.filtro-group {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 30px;
+}
+
+.filtro-btn {
+  background-color: #f0f0f0;
+  border: none;
+  border-radius: 25px;
+  padding: 10px 18px;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #333;
+  cursor: pointer;
+  transition: 0.2s ease-in-out;
+}
+
+.filtro-btn:hover {
+  background-color: #007bff;
+  color: white;
+  transform: scale(1.05);
+}
+
+.filtro-btn.activo {
+  background-color: #007bff;
+  color: white;
+}
+
+/* Contenedor del gráfico */
+.chart-container {
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+  background: #f9f9f9;
+  padding: 25px;
+  border-radius: 16px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+canvas {
+  max-width: 100%;
+}
+
+.chart-container canvas { height: 360px !important; }
+

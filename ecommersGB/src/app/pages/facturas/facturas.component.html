@@ -12,6 +12,7 @@
     />
   </div>
 
+  <button class="btn btn-outline-success csv-btn" [routerLink]="['/estadisticas']">Estadísticas</button>
   <button type="button" class="csv-btn" (click)="exportarCSV()" [disabled]="descargandoCsv">
     Exportar CSV
   </button>
