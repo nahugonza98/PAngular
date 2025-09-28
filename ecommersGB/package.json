@@ -5,7 +5,9 @@
     "ng": "ng",
     "start": "ng serve",
     "build:netlify": "ng build --configuration production --prerender=false",
+     "build:firebase": "ng build --configuration production --prerender=false",
     "build": "ng build",
+      "deploy:firebase": "ng build --configuration production --prerender=false && firebase deploy --only hosting",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "serve:ssr:ecommersGB": "node dist/ecommers-gb/server/server.mjs"
