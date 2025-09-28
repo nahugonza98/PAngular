@@ -1,12 +1,23 @@
+// src/app/servicios/factura.service.ts
 import { Injectable } from '@angular/core';
-import { Observable, combineLatest, of } from 'rxjs';
-import { map, switchMap } from 'rxjs/operators';
-import { getDbReference, getNodeValue, listenToNode } from '../firebase.init';
+import { Observable } from 'rxjs';
+import {
+  getDatabase,
+  ref,
+  onValue,
+  off,
+  get,
+  set,
+  update,
+  DataSnapshot,
+} from 'firebase/database';
+import { AuthService } from './auth.service';
+import { getFirebase } from '../firebase.init';
 
 export type EstadoFactura = 'PAGADA' | 'ANULADA';
 
 export interface FacturaItem {
-  producto_id: number;
+  producto_id: number | string;
   producto_nombre?: string | null;
   cantidad: number;
   precio_unitario: number;
@@ -18,164 +29,145 @@ export interface FacturaRTDB {
   ts: number;
   fechaISO: string;
   totalARS: number;
-  totalUSD?: number | null;
-  tipo_cambio?: number | null;
+  totalUSD: number | null;
+  tipo_cambio: number | null;
   estado: EstadoFactura;
-  cliente?: { id?: number | null; nombre?: string | null };
-  items?: Record<string, FacturaItem>;
+  userId?: string | null;
+  cliente_email?: string | null;
+  cliente_nombre?: string | null;
+  items?: FacturaItem[];
 }
 
 @Injectable({ providedIn: 'root' })
 export class FacturaService {
+  private readonly ROOT = 'facturas';
 
-  /** TODAS las facturas (si la base crece mucho, usá por día) */
-  obtenerFacturas$(): Observable<FacturaRTDB[]> {
-    return new Observable<FacturaRTDB[]>((subscriber) => {
-      let off: (() => void) | undefined;
+  constructor(private auth: AuthService) {}
 
-      getNodeValue<Record<string, any>>('/facturas')
-        .then(obj => subscriber.next(this.mapColeccion(obj)))
-        .catch(err => subscriber.error(err));
+  /** Observa todas las facturas (ordenadas por ts desc) */
+  facturas$(): Observable<FacturaRTDB[]> {
+    return new Observable<FacturaRTDB[]>((sub) => {
+      // Traemos la instancia de RTDB y nos suscribimos con onValue
+      getFirebase()
+        .then(({ database }) => {
+          const r = ref(database, this.ROOT);
 
-      listenToNode<Record<string, any>>('/facturas', (obj) => {
-        subscriber.next(this.mapColeccion(obj));
-      })
-        .then(fn => off = fn)
-        .catch(err => subscriber.error(err));
+          const handler = (snap: DataSnapshot) => {
+            const val = (snap.val() || {}) as Record<string, any>;
+            const arr = Object.entries(val).map(([id, f]) => this.mapFactura(id, f));
+            sub.next(arr.sort((a, b) => b.ts - a.ts));
+          };
 
-      return () => off?.();
+          onValue(r, handler, (err) => sub.error(err));
+
+          // Teardown de la suscripción
+          sub.add(() => off(r, 'value', handler));
+        })
+        .catch((err) => sub.error(err));
     });
   }
 
-  /** Facturas por fecha (índice /facturasPorFecha/{YYYY-MM-DD}) */
-  obtenerFacturasPorDia$(diaYYYYMMDD: string): Observable<FacturaRTDB[]> {
-    const idx = `/facturasPorFecha/${diaYYYYMMDD}`;
-
-    const ids$ = new Observable<string[]>((subscriber) => {
-      let off: (() => void) | undefined;
-
-      getNodeValue<Record<string, true>>(idx)
-        .then(o => subscriber.next(Object.keys(o ?? {})))
-        .catch(err => subscriber.error(err));
-
-      listenToNode<Record<string, true>>(idx, (o) =>
-        subscriber.next(Object.keys(o ?? {}))
-      ).then(fn => off = fn)
-       .catch(err => subscriber.error(err));
-
-      return () => off?.();
-    });
-
-    return ids$.pipe(
-      switchMap(ids => {
-        if (!ids?.length) return of<FacturaRTDB[]>([]);
-        const perId$ = ids.map(id => this.getFactura$(id));
-        return combineLatest(perId$);
-      }),
-      map(list => list.sort((a,b) => (b.ts ?? 0) - (a.ts ?? 0)))
-    );
+  /** Lee todas las facturas una vez */
+  async facturasOnce(): Promise<FacturaRTDB[]> {
+    const { database } = await getFirebase();
+    const r = ref(database, this.ROOT);
+    const snap = await get(r);
+    const val = (snap.val() || {}) as Record<string, any>;
+    const arr = Object.entries(val).map(([id, f]) => this.mapFactura(id, f));
+    return arr.sort((a, b) => b.ts - a.ts);
   }
 
-  /** Una factura individual */
-  getFactura$(id: string): Observable<FacturaRTDB> {
-    const path = `/facturas/${id}`;
-    return new Observable<FacturaRTDB>((subscriber) => {
-      let off: (() => void) | undefined;
-
-      getNodeValue<any>(path)
-        .then(f => subscriber.next(this.mapFactura(id, f)))
-        .catch(err => subscriber.error(err));
-
-      listenToNode<any>(path, (f) => subscriber.next(this.mapFactura(id, f)))
-        .then(fn => off = fn)
-        .catch(err => subscriber.error(err));
-
-      return () => off?.();
-    });
-  }
-
-
-  // ---------- CREAR FACTURA EN RTDB (fan-out) ----------
-async guardarFacturaEnRTDB(payload: {
+  /** Crea una factura tomando SIEMPRE el usuario actual */
+ async crearFactura(payload: {
+  items: FacturaItem[];
   totalARS: number;
-  estado: 'PAGADA' | 'ANULADA';
-  items: Array<{
-    producto_id: number;
-    producto_nombre?: string | null;
-    cantidad: number;
-    precio_unitario: number;
-    subtotal_ars: number | null;
-  }>;
-  tipo_cambio?: number | null;
-  totalUSD?: number | null;
-  cliente?: { id?: number | null; nombre?: string | null };
-  fecha?: Date;
+  totalUSD: number | null;
+  tipo_cambio: number | null;
 }): Promise<string> {
-  const fecha = payload.fecha ?? new Date();
-  const ts = fecha.getTime();
-  const fechaISO = fecha.toISOString();
-  const yyyyMmDd = fechaISO.slice(0, 10); // YYYY-MM-DD
+  const now = Date.now();
+  const id = `${now}-${Math.random().toString(36).slice(2, 8)}`;
 
-  // id simple (timestamp + random). Si preferís pushId lo cambiamos.
-  const rid = Math.random().toString(36).slice(2, 8);
-  const id = `${ts}-${rid}`;
+  // 🔄 Esperar a que se resuelva el usuario actual
+  const usuario = await this.auth.getUsuarioActual();
 
-  // array -> objeto {1:{...}, 2:{...}}
-  const itemsObj: Record<string, any> = {};
-  payload.items.forEach((it, idx) => (itemsObj[String(idx + 1)] = it));
+  const userId = usuario?.uid ?? null;
+  const cliente_email = usuario?.email ?? null;
+  const cliente_nombre = usuario?.displayName ?? usuario?.email ?? null;
 
-  const facturaData = {
-    ts,
-    fechaISO,
+  const factura: Omit<FacturaRTDB, 'id'> = {
+    ts: now,
+    fechaISO: new Date(now).toISOString(),
     totalARS: payload.totalARS,
-    totalUSD: payload.totalUSD ?? null,
-    tipo_cambio: payload.tipo_cambio ?? null,
-    estado: payload.estado,
-    cliente: payload.cliente,
-    items: itemsObj,
+    totalUSD: payload.totalUSD,
+    tipo_cambio: payload.tipo_cambio,
+    estado: 'PAGADA',
+    userId,
+    cliente_email,
+    cliente_nombre,
+    items: payload.items ?? [],
   };
 
-  const refRoot = await getDbReference('/');
-  const { update } = await import('firebase/database');
-
-  await update(refRoot, {
-    [`facturas/${id}`]: facturaData,
-    [`facturasPorFecha/${yyyyMmDd}/${id}`]: true,
-    [`facturasPorEstado/${payload.estado}/${id}`]: true,
-  });
-
+  const { database } = await getFirebase();
+  await set(ref(database, `${this.ROOT}/${id}`), factura);
   return id;
 }
 
-  /** CSV local (sin backend) */
+  /** Actualiza el estado de una factura */
+  async actualizarEstado(id: string, estado: EstadoFactura): Promise<void> {
+    const { database } = await getFirebase();
+    await update(ref(database, `${this.ROOT}/${id}`), { estado });
+  }
+
+  /** CSV simple para exportar */
   generarCSVDesdeFacturas(facturas: FacturaRTDB[]): Blob {
     const headers = [
-      'id','fechaISO','totalARS','estado','cliente_nombre','items_cantidad','items_detalle'
+      'ID',
+      'Fecha',
+      'Total_ARS',
+      'Total_USD',
+      'Tipo_Cambio',
+      'Estado',
+      'Cliente_Email',
+      'Cliente_Nombre',
     ];
-    const rows = facturas.map(f => {
-      const itemsArr = Object.values(f.items ?? {});
-      const detalle = itemsArr
-        .map(it => `${it.producto_nombre ?? ('ID ' + it.producto_id)} x${it.cantidad} @${it.precio_unitario}`)
-        .join(' | ');
-      return [
-        f.id, f.fechaISO, f.totalARS, f.estado, f.cliente?.nombre ?? '', itemsArr.length, detalle
-      ];
-    });
+
+    const rows = facturas.map((f) => [
+      f.id,
+      this.formatFechaLocal(f.ts),
+      this.formatMoneyARS(f.totalARS),
+      f.totalUSD != null ? this.formatMoneyUSD(f.totalUSD) : '',
+      f.tipo_cambio ?? '',
+      f.estado,
+      f.cliente_email ?? '',
+      f.cliente_nombre ?? '',
+    ]);
 
     const csv = [headers, ...rows]
-      .map(cols => cols.map(v => {
-        const s = String(v ?? '');
-        return s.includes(',') || s.includes('"') ? `"${s.replace(/"/g,'""')}"` : s;
-      }).join(','))
+      .map((r) => r.map((v) => this.csvEscape(String(v ?? ''))).join(','))
       .join('\n');
 
     return new Blob([csv], { type: 'text/csv;charset=utf-8;' });
   }
 
-  // ---- helpers ----
-  private mapColeccion(obj: Record<string, any> | null | undefined): FacturaRTDB[] {
-    const arr = Object.entries(obj ?? {}).map(([id, f]) => this.mapFactura(id, f));
-    return arr.sort((a,b) => (b.ts ?? 0) - (a.ts ?? 0));
+  // ---------- helpers ----------
+  private csvEscape(s: string): string {
+    if (s.includes('"') || s.includes(',') || s.includes('\n')) {
+      return `"${s.replace(/"/g, '""')}"`;
+    }
+    return s;
+  }
+  private formatFechaLocal(ts: number): string {
+    try { return new Date(ts).toLocaleString(); } catch { return ''; }
+  }
+  private formatMoneyARS(n: number): string {
+    try {
+      return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 2 }).format(n);
+    } catch { return String(n); }
+  }
+  private formatMoneyUSD(n: number): string {
+    try {
+      return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 }).format(n);
+    } catch { return String(n); }
   }
   private mapFactura(id: string, f: any): FacturaRTDB {
     return {
@@ -185,9 +177,11 @@ async guardarFacturaEnRTDB(payload: {
       totalARS: Number(f?.totalARS ?? 0),
       totalUSD: f?.totalUSD ?? null,
       tipo_cambio: f?.tipo_cambio ?? null,
-      estado: (f?.estado as any) ?? 'PAGADA',
-      cliente: f?.cliente ? { id: f.cliente.id ?? null, nombre: f.cliente.nombre ?? null } : undefined,
-      items: f?.items ?? undefined
+      estado: (f?.estado as EstadoFactura) ?? 'PAGADA',
+      userId: f?.userId ?? null,
+      cliente_email: f?.cliente_email ?? null,
+      cliente_nombre: f?.cliente_nombre ?? null,
+      items: f?.items ?? undefined,
     };
   }
 }

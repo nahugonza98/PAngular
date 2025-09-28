@@ -25,7 +25,7 @@ export class EstadisticasComponent implements AfterViewInit {
 
   // ----- ESTADO UI -----
   periodo: 'dia' | 'semana' | 'mes' = 'dia'; // ventas
-  rangoDolarDias: 7 | 30 | 90 = 7;           // dólar
+  rangoDolarDias = 7;           // dólar
   errorDolar = '';
 
   constructor(
@@ -34,8 +34,8 @@ export class EstadisticasComponent implements AfterViewInit {
   ) {}
 
   ngAfterViewInit(): void {
-    this.renderVentas();        // gráfico de ventas
-    this.cargarDolar(7);        // gráfico del dólar (por defecto 7 días)
+    this.renderVentas();
+    this.cargarDolar(7);        
   }
 
   // =======================
@@ -47,7 +47,7 @@ export class EstadisticasComponent implements AfterViewInit {
   }
 
   private renderVentas(): void {
-    this.facturaSrv.obtenerFacturas$().subscribe((facturas: FacturaRTDB[]) => {
+    this.facturaSrv.facturas$().subscribe((facturas: FacturaRTDB[]) => {
       // ---- Agrupar por día/semana/mes
       const agrupadas: Record<string, number> = {};
       facturas.forEach(f => {
@@ -79,7 +79,6 @@ export class EstadisticasComponent implements AfterViewInit {
         options: { responsive: true, plugins: { legend: { display: true } }, scales: { y: { beginAtZero: true } } }
       });
 
-      // 💡 Con las mismas facturas dibujamos “Productos más vendidos”
       this.graficarProductosMasVendidos(facturas);
     });
   }
@@ -87,7 +86,7 @@ export class EstadisticasComponent implements AfterViewInit {
   // =======================
   //      DÓLAR (rango)
   // =======================
-  async cargarDolar(dias: 7 | 30 | 90) {
+  async cargarDolar(dias: 7) {
     this.rangoDolarDias = dias;
     this.errorDolar = '';
     try {
@@ -139,14 +138,14 @@ export class EstadisticasComponent implements AfterViewInit {
   }
 
 
-  /* Productos mas vendidos */
-  private graficarProductosMasVendidos(facturas: FacturaRTDB[]) {
+/* Productos mas vendidos */
+private graficarProductosMasVendidos(facturas: FacturaRTDB[]) {
   const cantPorProducto: Record<string, number> = {};
 
   facturas.forEach(f => {
     const items = f.items ? Object.values(f.items) : [];
     items.forEach((it: any) => {
-      // 👇 Usamos SIEMPRE el nombre si existe
+      // Usamos SIEMPRE el nombre si existe; si no, un placeholder fijo
       const key = (it?.producto_nombre && String(it.producto_nombre).trim())
         ? String(it.producto_nombre).trim()
         : 'Producto sin nombre';
@@ -164,13 +163,14 @@ export class EstadisticasComponent implements AfterViewInit {
     return;
   }
 
-  const top = entradas.slice(0, 5);
-  const resto = entradas.slice(5);
-  const otrosTotal = resto.reduce((acc, [, c]) => acc + c, 0);
-
+  // 🔥 Solo TOP 6 — SIN “Otros”
+  const top = entradas.slice(0, 6);
   const labels = top.map(([n]) => n);
   const data   = top.map(([, c]) => c);
-  if (otrosTotal > 0) { labels.push('Otros'); data.push(otrosTotal); }
+
+  // Aseguramos que la cantidad de colores coincida con la cantidad de datos
+  const baseColors = ['#4e79a7','#f28e2b','#e15759','#76b7b2','#59a14f','#edc949'];
+  const bgColors   = baseColors.slice(0, data.length);
 
   if (this.chartProductos) this.chartProductos.destroy();
 
@@ -181,7 +181,7 @@ export class EstadisticasComponent implements AfterViewInit {
       datasets: [{
         label: 'Unidades vendidas',
         data,
-        backgroundColor: ['#4e79a7','#f28e2b','#e15759','#76b7b2','#59a14f','#edc949'],
+        backgroundColor: bgColors,
         borderWidth: 1
       }]
     },

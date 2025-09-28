@@ -74,67 +74,57 @@ export class CarritoComponent implements OnInit {
   }
 
   // -------- finalizar compra (guarda en RTDB) --------
-  async finalizarCompra(): Promise<void> {
-    const productos = this.carritoService.obtenerProductos();
-    if (productos.length === 0) {
-      alert('El carrito está vacío.');
-      return;
-    }
-
-    const totalARS = productos.reduce(
-      (acc, item) => acc + item.precio * item.cantidad,
-      0
-    );
-
-    // armamos los items como espera RTDB (con nombre!)
-    const items = productos.map(p => ({
-      producto_id: p.id,
-      producto_nombre: p.nombre,          // ✅ nombre persistido
-      cantidad: p.cantidad,
-      precio_unitario: p.precio,
-      subtotal_ars: p.cantidad * p.precio,
-    }));
-
-    // cliente (opcional): ejemplo simple desde localStorage si lo tenés guardado
-    let cliente: { id?: number | null; nombre?: string | null } | undefined;
-    try {
-      const raw = localStorage.getItem('usuario'); // ajustá la key a tu app
-      if (raw) {
-        const u = JSON.parse(raw);
-        cliente = {
-          id: u?.id ?? null,
-          nombre: u?.nombre ?? u?.email ?? null,
-        };
-      }
-    } catch {
-      cliente = undefined;
-    }
-
-    // totalUSD si tenemos tipo_cambio válido
-    const tipo_cambio = this.cotizacionUSD ?? null;
-    const totalUSD =
-      tipo_cambio && tipo_cambio > 0 ? Number((totalARS / tipo_cambio).toFixed(2)) : null;
-
-    try {
-      await this.facturaSrv.guardarFacturaEnRTDB({
-        totalARS,
-        estado: 'PAGADA',
-        items,
-        tipo_cambio,       // ✅ queda guardado en la factura
-        totalUSD,          // ✅ idem
-        cliente,           // ✅ opcional
-        fecha: new Date(), // el service usa esto para ts/fechaISO
-      });
-
-      this.carritoService.vaciarCarrito();
-      this.productosEnCarrito = [];
-      this.compraRealizada = true;
-      setTimeout(() => (this.compraRealizada = false), 3000);
-    } catch (err) {
-      console.error('Error al generar la factura en RTDB', err);
-      alert('Ocurrió un error al guardar la factura.');
-    }
+ async finalizarCompra(): Promise<void> {
+  const productos = this.carritoService.obtenerProductos();
+  if (productos.length === 0) {
+    alert('El carrito está vacío.');
+    return;
   }
+
+  const totalARS = productos.reduce(
+    (acc, item) => acc + item.precio * item.cantidad,
+    0
+  );
+
+  // armamos los items como espera RTDB (con nombre!)
+  const items = productos.map(p => ({
+    producto_id: p.id,
+    producto_nombre: p.nombre,
+    cantidad: p.cantidad,
+    precio_unitario: p.precio,
+    subtotal_ars: p.cantidad * p.precio,
+  }));
+
+  // totalUSD si tenemos tipo_cambio válido
+  const tipo_cambio = this.cotizacionUSD ?? null;
+  const totalUSD =
+    tipo_cambio && tipo_cambio > 0
+      ? Number((totalARS / tipo_cambio).toFixed(2))
+      : null;
+
+  try {
+    // ✅ Llamamos al método nuevo del servicio
+    await this.facturaSrv.crearFactura({
+      items,
+      totalARS,
+      totalUSD,
+      tipo_cambio,
+    });
+
+    // limpiar carrito y mostrar mensaje
+    this.carritoService.vaciarCarrito();
+    this.productosEnCarrito = [];
+    this.compraRealizada = true;
+    setTimeout(() => (this.compraRealizada = false), 3000);
+  } catch (err) {
+    console.error('Error al generar la factura en RTDB', err);
+    alert('Ocurrió un error al guardar la factura.');
+  }
+}
+
+
+
+
 }
 
 interface ProductoCarrito extends Producto {

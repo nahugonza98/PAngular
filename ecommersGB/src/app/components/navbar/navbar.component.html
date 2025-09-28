@@ -87,8 +87,8 @@
   </div>
 
   <a routerLink="/contacto">Contacto</a>
-  <a *ngIf="usuarioActual.rol === 'admin'" routerLink="/ingresar-producto">Ingresar producto</a>
-  <li *ngIf="usuarioActual?.rol === 'admin'">
+  <a *ngIf="usuarioActual.role === 'admin'" routerLink="/ingresar-producto">Ingresar producto</a>
+  <li *ngIf="usuarioActual?.role === 'admin'">
     <a routerLink="/facturas">Ver facturas</a>
   </li>
   <a routerLink="/chat">👤 ChatGlobal</a>

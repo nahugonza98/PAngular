@@ -1,384 +1,545 @@
-/* Reset básico */
-* {
-  box-sizing: border-box;
-  font-family: 'Roboto', Arial, sans-serif;
+/* ===== Paleta ===== */
+:root{
+  --bg: #f2f4f7;          /* fondo general */
+  --card: #ffffff;        /* card principal */
+  --text: #0f172a;        /* texto oscuro */
+  --muted:#475569;        /* texto secundario con buen contraste */
+  --primary:#1976d2;      /* azul burbuja propia */
+  --primary-700:#125aa0;
+  --border:#e5e7eb;
+  --ring:#cfe6ff;
 }
 
-.chat-shell {
-  display: flex;
-  flex-direction: column;
-  height: 80vh;
-  max-width: 700px;
-  margin: 20px auto;
-  border: 1px solid #ddd;
-  border-radius: 12px;
-  overflow: hidden;
-  background: #fff;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-}
-
-/* Header */
-.chat-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 16px;
-  background: #1976d2;
-  color: #fff;
-  font-weight: 600;
-}
-.chat-header .logout {
-  background: #fff;
-  color: #1976d2;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 500;
-}
-.chat-header .logout:hover {
-  background: #f0f0f0;
-}
-
-/* Historial */
-.history {
-  flex: 1;
-  padding: 12px;
-  overflow-y: auto;
-  background: #f9f9f9;
-}
-.msg {
-  display: flex;
-  margin: 8px 0;
-}
-.msg.me {
-  justify-content: flex-end;
-}
-.msg.other {
-  justify-content: flex-start;
-}
-.bubble {
-  max-width: 70%;
-  padding: 10px 14px;
-  border-radius: 14px;
-  background: #e0e0e0;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-}
-.msg.me .bubble {
-  background: #1976d2;
-  color: #fff;
-  border-bottom-right-radius: 4px;
-}
-.msg.other .bubble {
-  background: #fff;
-  border: 1px solid #ddd;
-  border-bottom-left-radius: 4px;
-}
-
-/* Meta (nombre · rol · fecha) */
-.meta {
-  font-size: 0.8rem;
-  opacity: 0.8;
-  margin-bottom: 4px;
-  display: flex;               /* agregado */
-  align-items: baseline;       /* agregado */
-  gap: 6px;                    /* agregado */
-}
-.sep { opacity: .45; }         /* agregado */
-
-/* Badge de rol */
-.role-badge {
-  padding: 2px 6px;
-  border-radius: 8px;
-  font-size: 11px;
-  line-height: 1;
-  text-transform: lowercase;
-  background: #e9ecef;
-  color: #495057;
-}
-.role-badge.admin {
-  background: #fde2e1;  /* rojo suave */
-  color: #b42318;
-}
-.role-badge.moderator {
-  background: #e8def8;  /* violeta */
-  color: #5b34b2;
-}
-.role-badge.user {
-  background: #e9ecef;  /* gris */
-  color: #495057;
-}
-
-.text {
-  word-wrap: break-word;
-  line-height: 1.4;
-}
-
-/* Composer */
-.composer {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 12px;
-  border-top: 1px solid #ddd;
-  background: #fff;
-}
-.composer input {
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  flex: 1;
-}
-.send-box {
-  display: flex;
-  gap: 6px;
-}
-.send-box button {
-  background: #1976d2;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  padding: 10px 16px;
-  cursor: pointer;
-  font-weight: 600;
-}
-.send-box button:disabled {
-  background: #aaa;
-  cursor: not-allowed;
-}
-.send-box button:hover:enabled {
-  background: #125aa0;
-}
-
-/* Login */
-#loginCard {
-  padding: 24px;
-  max-width: 360px;
-  margin: 60px auto;
-  border: 1px solid #ddd;
-  border-radius: 12px;
-  background: #fff;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-}
-.login {
-  display: grid;
-  gap: 10px;
-}
-.login input {
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-}
-.login button {
-  background: #1976d2;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  padding: 10px;
-  cursor: pointer;
-  font-weight: 600;
-}
-.login button:disabled {
-  background: #aaa;
-  cursor: not-allowed;
-}
-.alert {
-  background: #ffe8e8;
-  color: #b00020;
-  border: 1px solid #f5bcbc;
-  padding: 8px;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 0.9rem;
-}
-
-/* Scrollbar */
-.history::-webkit-scrollbar { width: 8px; }
-.history::-webkit-scrollbar-thumb {
-  background: #ccc;
-  border-radius: 4px;
-}
-
-
-/* ===== Variables (podés ajustar colores acá) ===== */
-:root {
-  --bg: #f7f7f8;
-  --card-bg: #ffffff;
-  --text: #1a1a1a;
-  --muted: #6b7280;
-  --primary: #1976d2;
-  --primary-700: #125aa0;
-  --border: #e5e7eb;
-  --ring: #cfe6ff;
-  --danger: #b00020;
-}
-
-/* ===== Contenedor de la página ===== */
-body, :host {
+/* ===== Reset base ===== */
+*{ box-sizing: border-box; }
+:host, body{
   background: var(--bg);
+  color: var(--text);
+  font-family: Inter, system-ui, Segoe UI, Roboto, Arial, sans-serif;
 }
 
-/* Tarjeta del login */
-#loginCard {
-  background: var(--card-bg);
-  width: min(92vw, 520px);
-  min-height: 560px;
-  margin: 32px auto;
-  padding: 22px 24px 28px;
+/* ===== Contenedor principal ===== */
+.chat-shell{
+  height: min(92vh, 860px);
+  max-width: 920px;
+  margin: 16px auto;
+  background: var(--card);
   border: 1px solid var(--border);
   border-radius: 14px;
-  box-shadow: 0 10px 30px rgba(0,0,0,.08);
+  box-shadow: 0 8px 24px rgba(16,24,40,.07);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
-#loginCard h3 {
-  margin: 4px 0 12px;
-  font-size: 1.35rem;
-  font-weight: 700;
-  color: var(--text);
+/* ===== Header ===== */
+.chat-header{
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 14px;
+  background: var(--primary); color: #fff; font-weight: 700;
 }
-
-/* ===== Formulario ===== */
-.login {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 14px;
+.chat-header .logout{
+  margin-left: auto; background: #fff; color: var(--primary);
+  border: 0; padding: 8px 12px; border-radius: 10px; cursor: pointer; font-weight: 700;
 }
+.chat-header .logout:hover{ background: #f6f7fb; }
 
-.login label {
-  font-size: .92rem;
-  color: var(--text);
-  font-weight: 600;
-  margin-top: 4px;
+/* ===== Historial ===== */
+.history{
+  flex: 1; overflow: auto;
+  padding: 12px 14px 8px;
+  background: #eef2f7; /* un poco más gris para separar */
 }
+.history::-webkit-scrollbar{ width: 10px; }
+.history::-webkit-scrollbar-thumb{ background: #cfd5dd; border-radius: 6px; }
 
-.login input {
-  width: 100%;
-  margin-top: 6px;
-  padding: 12px 14px;
-  border: 1px solid var(--border);
-  border-radius: 10px;
+/* ===== Mensajes ===== */
+.msg{ display: flex; margin: 6px 0; }
+.msg.me{ justify-content: flex-end; }
+.msg.other{ justify-content: flex-start; }
+
+.bubble{
+  max-width: 76%;
+  padding: 8px 12px;
+  border-radius: 12px;
   background: #fff;
-  color: var(--text);
-  outline: none;
-  transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
-  font-size: .98rem;
+  border: 1px solid var(--border);
+  box-shadow: 0 1px 2px rgba(16,24,40,.05);
+  color: var(--text) !important; /* fuerza texto oscuro por defecto */
 }
-
-.login input::placeholder {
-  color: var(--muted);
-}
-
-.login input:focus {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 4px var(--ring);
-}
-
-/* Estados inválidos opcionales (si marcás touched/invalid en Angular) */
-.login input.ng-invalid.ng-touched {
-  border-color: var(--danger);
-  box-shadow: 0 0 0 4px rgba(176,0,32,.15);
-}
-
-/* Botón */
-.login button {
-  margin-top: 4px;
-  width: 100%;
-  padding: 12px 14px;
-  border: 0;
-  border-radius: 10px;
+.msg.other .bubble{ border-bottom-left-radius: 6px; }
+.msg.me .bubble{
   background: var(--primary);
-  color: #fff;
-  font-weight: 700;
-  letter-spacing: .2px;
-  cursor: pointer;
-  transition: transform .06s ease, background .15s ease, box-shadow .15s ease, opacity .15s ease;
-  box-shadow: 0 6px 20px rgba(25,118,210,.25);
+  border-color: transparent;
+  color: #fff !important;
+  border-bottom-right-radius: 6px;
 }
 
-.login button:hover:not(:disabled) { background: var(--primary-700); }
-.login button:active:not(:disabled) { transform: translateY(1px); }
+/* meta (nombre, rol, hora) — renombrada para evitar choques */
+.msg-meta{
+  display: flex; align-items: baseline; gap: 6px;
+  font-size: .82rem; margin-bottom: 3px; opacity: .95;
+  color: var(--muted) !important;       /* visible en fondo claro */
+}
+.msg.me .msg-meta{ color: rgba(255,255,255,.9) !important; } /* sobre azul */
+.sep{ opacity: .45; }
 
-.login button:disabled {
-  background: #b7bcc3;
-  cursor: not-allowed;
-  box-shadow: none;
-  opacity: .9;
+/* badge de rol */
+.role-badge{
+  padding: 2px 8px; border-radius: 999px; font-size: 11px; line-height: 1;
+  background: #eef2ff; color: #4338ca; border: 1px solid rgba(67,56,202,.15);
+}
+.role-badge.admin{ background:#ffe8e8; color:#b91c1c; border-color:#f9c8c8; }
+.role-badge.moderator{ background:#efe3ff; color:#6d28d9; border-color:#dec7ff; }
+.msg.me .role-badge{
+  background: rgba(255,255,255,.18); color:#fff; border-color: rgba(255,255,255,.25);
 }
 
-/* Mensaje de error genérico (no explícito) */
-.alert {
-  margin-top: 6px;
-  padding: 10px 12px;
-  border: 1px solid #f5bcbc;
-  background: #ffe8e8;
-  color: var(--danger);
-  border-radius: 10px;
-  font-weight: 600;
-  font-size: .94rem;
+/* texto del mensaje — renombrado para evitar choques con .text de otros CSS */
+.msg-text{
+  line-height: 1.42;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  color: inherit !important;         /* toma el color de la burbuja */
 }
+.msg.me .msg-text{ color: #fff !important; } /* sobre azul propio */
 
-/* Hint/ayudas (si las usás) */
-.hint {
-  font-size: .82rem;
-  color: var(--muted);
-  margin-top: -6px;
+/* ===== Composer pegado abajo ===== */
+.composer{
+  position: sticky; bottom: 0; background: var(--card);
+  border-top: 1px solid var(--border);
+  padding: 8px 10px;
 }
+.send-box{ display: grid; grid-template-columns: 1fr auto; gap: 8px; }
+.send-box input{
+  padding: 11px 12px; border: 1px solid var(--border); border-radius: 10px;
+  background: #fff; color: var(--text);
+}
+.send-box input:focus{ border-color: var(--primary); box-shadow: 0 0 0 3px var(--ring); outline: 0; }
+.send-box button{
+  border: 0; border-radius: 10px; padding: 11px 16px;
+  background: var(--primary); color: #fff; font-weight: 800;
+  cursor: pointer; transition: background .15s ease, transform .06s ease;
+}
+.send-box button:hover:enabled{ background: var(--primary-700); }
+.send-box button:active:enabled{ transform: translateY(1px); }
+.send-box button:disabled{ background: #aeb5bd; cursor: not-allowed; }
 
-/* ===== Animación de “shake” opcional para toda la tarjeta ===== */
-.shake { animation: shake .32s linear 1; }
-@keyframes shake {
-  0%{ transform: translateX(0) }
-  25%{ transform: translateX(-6px) }
-  50%{ transform: translateX(6px) }
-  75%{ transform: translateX(-6px) }
-  100%{ transform: translateX(0) }
+/* ===== Tarjeta de login ===== */
+#loginCard{
+  background: var(--card);
+  width: min(92vw, 520px);
+  margin: 24px auto;
+  padding: 18px 20px 24px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.06);
+}
+#loginCard h3{ margin: 2px 0 10px; font-size: 1.25rem; font-weight: 800; color: var(--text); }
+.login{ display: grid; gap: 12px; }
+.login label{ font-size: .9rem; color: var(--text); font-weight: 700; margin-top: 2px; }
+.login input{
+  width: 100%; margin-top: 6px; padding: 11px 12px;
+  border: 1px solid var(--border); border-radius: 10px; background: #fff; color: var(--text); outline: none;
+}
+.login input:focus{ border-color: var(--primary); box-shadow: 0 0 0 3px var(--ring); }
+.login button{
+  all: unset; display: block; width: 92%; text-align: center; padding: 11px 12px;
+  border-radius: 10px; background: var(--primary); color: #fff; font-weight: 800; margin: 6px auto 0; cursor: pointer;
+}
+.login button:hover{ background: var(--primary-700); }
+.alert{
+  margin-top: 4px; padding: 9px 11px; border: 1px solid #f5bcbc; background: #ffe8e8;
+  color: #b00020; border-radius: 10px; font-weight: 700; font-size: .92rem;
 }
 
 /* ===== Responsive ===== */
-@media (max-width: 480px) {
-  #loginCard {
-    margin: 18px auto;
-    padding: 18px 16px 22px;
-    border-radius: 12px;
+@media (max-width:600px){
+  .chat-shell{ height: calc(100dvh - 16px); margin: 8px; }
+  .bubble{ max-width: 88%; }
+}
+
+
+/* ==== FIX: forzar contraste en MIS mensajes (lado derecho) ==== */
+.msg.me .bubble{
+  background: #1976d2 !important;   /* azul sólido */
+  color: #fff !important;            /* texto blanco */
+  border-color: transparent !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,.18) !important;
+  opacity: 1 !important;
+}
+.msg.me .msg-meta{
+  color: rgba(255,255,255,.9) !important;
+}
+.msg.me .role-badge{
+  color: #fff !important;
+  border-color: rgba(255,255,255,.25) !important;
+}
+.msg.me .msg-text{
+  color: #fff !important;
+}
+
+/* Por si algún global aplica transparencia a TODAS las burbujas */
+.bubble{
+  background: #ffffff !important;
+  color: #0f172a !important;
+}
+
+
+/* === FIX botón Enviar === */
+:host ::ng-deep .composer .send-box button{
+  background: #1976d2 !important;
+  color: #fff !important;
+  border: 0 !important;
+  border-radius: 10px !important;
+  padding: 11px 16px !important;
+  font-weight: 800 !important;
+  box-shadow: 0 4px 14px rgba(25,118,210,.3) !important;
+}
+:host ::ng-deep .composer .send-box button:hover:enabled{
+  background: #125aa0 !important;
+}
+:host ::ng-deep .composer .send-box button:disabled{
+  background: #9aa4b2 !important;
+  color: #f1f5f9 !important;
+  box-shadow: none !important;
+}
+
+
+/* === FIX badge de rol en mis mensajes: mantener la paleta global === */
+.msg.me .role-badge{
+  background: #eef2ff !important;
+  color: #4338ca !important;
+  border: 1px solid rgba(67,56,202,.15) !important;
+}
+.msg.me .role-badge.admin{
+  background: #ffe8e8 !important;
+  color: #b91c1c !important;
+  border-color: #f9c8c8 !important;
+}
+.msg.me .role-badge.moderator{
+  background: #efe3ff !important;
+  color: #6d28d9 !important;
+  border-color: #dec7ff !important;
+}
+
+
+
+:host ::ng-deep .chat-header .logout {
+  background: #1976d2 !important;   
+  color: #fff !important;          
+  font-weight: 700 !important;
+  border: 0 !important;
+  border-radius: 8px !important;
+  padding: 8px 14px !important;
+  cursor: pointer !important;
+  box-shadow: 0 4px 12px rgba(25,118,210,.25) !important;
+}
+
+:host ::ng-deep .chat-header .logout:hover {
+  background: #125aa0 !important;
+}
+
+:host ::ng-deep .chat-header .logout:disabled {
+  background: #9aa4b2 !important;
+  color: #f1f5f9 !important;
+  box-shadow: none !important;
+  cursor: not-allowed !important;
+}
+
+
+
+/* LOGIN */
+
+
+/* ======= FIX LOGIN ======= */
+#loginCard{
+  width: min(92vw, 460px) !important;
+  margin: 32px auto !important;
+  padding: 20px 22px 24px !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 16px !important;
+  background: var(--card) !important;
+  box-shadow: 0 14px 40px rgba(16,24,40,.08) !important;
+}
+
+#loginCard h3{
+  margin: 0 0 14px !important;
+  font-size: 1.35rem !important;
+  font-weight: 800 !important;
+  color: var(--text) !important;
+}
+
+.login{ display: grid !important; gap: 14px !important; }
+
+.login label{
+  font-size: .95rem !important;
+  font-weight: 700 !important;
+  color: var(--text) !important;
+  margin-top: 2px !important;
+}
+
+.login input{
+  width: 100% !important;
+  margin-top: 6px !important;
+  padding: 12px 14px !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 12px !important;
+  background: #fff !important;
+  color: var(--text) !important;
+  outline: none !important;
+}
+.login input::placeholder{
+  color: #94a3b8 !important;  /* contraste correcto para placeholder */
+}
+.login input:focus{
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 3px var(--ring) !important;
+}
+
+/* Botón Iniciar sesión (mismo estilo que “Enviar/Salir”) */
+#loginCard .login-btn{
+  display: inline-block !important;
+  width: 100% !important;
+  padding: 12px 14px !important;
+  border-radius: 12px !important;
+  border: 0 !important;
+  background: #1976d2 !important;
+  color: #fff !important;
+  font-weight: 800 !important;
+  text-align: center !important;
+  cursor: pointer !important;
+  box-shadow: 0 6px 18px rgba(25,118,210,.28) !important;
+}
+#loginCard .login-btn:hover{ background:#125aa0 !important; }
+#loginCard .login-btn:disabled{
+  background:#9aa4b2 !important; color:#f1f5f9 !important; box-shadow:none !important; cursor:not-allowed !important;
+}
+
+#loginCard .alert{
+  margin-top: 4px !important;
+  padding: 10px 12px !important;
+  border: 1px solid #f5bcbc !important;
+  background: #ffe8e8 !important;
+  color:#b00020 !important;
+  border-radius: 10px !important;
+  font-weight: 700 !important;
+  font-size: .95rem !important;
+}
+
+.title {
+  color: black;
+}
+
+/* ===== LOGIN – diseño compacto y con color ===== */
+#loginCard{
+  width: min(92vw, 460px) !important;
+  margin: 32px auto !important;
+  padding: 22px 20px 20px !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 18px !important;
+  background: #ffffff !important;
+  box-shadow: 0 16px 48px rgba(16,24,40,.10) !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+/* Banda superior decorativa con gradiente */
+#loginCard::before{
+  content:"";
+  position:absolute; inset:0 auto auto 0;
+  height: 84px; width: 100%;
+  background: linear-gradient(135deg, #1976d2 0%, #7c4dff 50%, #00b7ff 100%);
+  opacity:.95;
+}
+#loginCard::after{
+  /* pattern de puntos sutil en la banda */
+  content:"";
+  position:absolute; left:0; top:0; height:84px; width:100%;
+  background-image: radial-gradient(rgba(255,255,255,.35) 1px, transparent 1.5px);
+  background-size: 12px 12px;
+}
+
+/* Título */
+#loginCard h3{
+  position: relative; z-index:1;
+  margin: 0 0 14px !important;
+  padding-top: 50px;                 /* baja el título debajo de la banda */
+  font-size: 1.35rem !important;
+  font-weight: 800 !important;
+  color: #0f172a !important;
+}
+
+/* Form */
+#loginCard .login{ display: grid !important; gap: 14px !important; }
+#loginCard .login label{
+  font-size: .95rem !important; font-weight: 700 !important; color: #0f172a !important;
+  margin-top: 2px !important;
+}
+#loginCard .login input{
+  width: 100% !important;
+  margin-top: 6px !important;
+  padding: 12px 14px !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 12px !important;
+  background: #fff !important;
+  color: #0f172a !important;
+  outline: none !important;
+  transition: box-shadow .15s, border-color .15s;
+}
+#loginCard .login input::placeholder{ color: #94a3b8 !important; }
+#loginCard .login input:focus{
+  border-color: #7c4dff !important;
+  box-shadow: 0 0 0 4px rgba(124,77,255,.18) !important;
+}
+
+/* Botón con gradiente (coherente con la banda superior) */
+#loginCard .login-btn{
+  display: inline-block !important;
+  width: 100% !important;
+  padding: 12px 14px !important;
+  border-radius: 999px !important; /* pill */
+  border: 0 !important;
+  background: linear-gradient(90deg, #1976d2, #7c4dff, #00b7ff) !important;
+  background-size: 200% 100% !important;
+  color: #fff !important;
+  font-weight: 800 !important;
+  text-align: center !important;
+  cursor: pointer !important;
+  box-shadow: 0 8px 22px rgba(25,118,210,.28) !important;
+  transition: background-position .35s ease;
+}
+#loginCard .login-btn:hover{ background-position: 100% 0 !important; }
+#loginCard .login-btn:disabled{
+  background: #9aa4b2 !important; color:#f1f5f9 !important; box-shadow:none !important; cursor:not-allowed !important;
+}
+
+/* Error */
+#loginCard .alert{
+  margin-top: 4px !important; padding: 10px 12px !important;
+  border: 1px solid #f5bcbc !important; background: #ffe8e8 !important; color:#b00020 !important;
+  border-radius: 10px !important; font-weight: 700 !important; font-size: .95rem !important;
+}
+
+/* ===== (opcional) si dejaste la clase chat-shell en el login ===== */
+#loginCard.chat-shell{
+  height: auto !important;
+  max-height: none !important;
+  display: block !important;
+  box-shadow: 0 16px 48px rgba(16,24,40,.10) !important;
+}
+
+
+/* ===== RESET del login: quitamos la banda/points y arreglamos espaciados ===== */
+#loginCard::before,
+#loginCard::after{
+  content: none !important;     /* elimina la banda y el pattern */
+  display: none !important;
+}
+
+#loginCard{
+  width: min(92vw, 460px) !important;
+  margin: 32px auto !important;
+  padding: 20px 22px 22px !important;   /* padding uniforme */
+  border: 1px solid var(--border) !important;
+  border-radius: 16px !important;
+  background: #fff !important;
+  box-shadow: 0 14px 40px rgba(16,24,40,.08) !important;
+}
+
+/* Título limpio + acento de color sutil */
+#loginCard h3{
+  margin: 0 0 12px !important;
+  padding: 0 !important;                /* quitamos padding-top del banner anterior */
+  font-size: 1.32rem !important;
+  font-weight: 800 !important;
+  color: #0f172a !important;
+  position: relative !important;
+}
+#loginCard h3::after{
+  content: "" !important;
+  position: absolute !important;
+  left: 0; bottom: -8px;
+  width: 64px; height: 4px; border-radius: 999px;
+  background: linear-gradient(90deg, #1976d2, #7c4dff) !important;
+}
+
+/* Form compacto y consistente */
+#loginCard .login{ display: grid !important; gap: 14px !important; }
+#loginCard .login label{
+  font-size: .95rem !important; font-weight: 700 !important; color: #0f172a !important;
+}
+#loginCard .login input{
+  width: 100% !important;
+  margin-top: 6px !important;
+  padding: 12px 14px !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 12px !important;
+  background: #fff !important;
+  color: #0f172a !important;
+  outline: none !important;
+  transition: box-shadow .15s, border-color .15s;
+}
+#loginCard .login input::placeholder{ color: #94a3b8 !important; }
+#loginCard .login input:focus{
+  border-color: #1976d2 !important;
+  box-shadow: 0 0 0 3px rgba(25,118,210,.18) !important;
+}
+
+/* Botón: pill, contraste alto (sin desalinearse) */
+#loginCard .login-btn{
+  display: inline-block !important;
+  width: 100% !important;
+  padding: 12px 14px !important;
+  border-radius: 999px !important;
+  border: 0 !important;
+  background: linear-gradient(90deg, #1976d2, #7c4dff) !important;
+  color: #fff !important;
+  font-weight: 800 !important;
+  text-align: center !important;
+  cursor: pointer !important;
+  box-shadow: 0 8px 22px rgba(25,118,210,.24) !important;
+}
+#loginCard .login-btn:hover{ filter: brightness(.95) !important; }
+#loginCard .login-btn:disabled{
+  background: #9aa4b2 !important; color:#f1f5f9 !important;
+  box-shadow:none !important; cursor:not-allowed !important;
+}
+
+/* Mensaje de error */
+#loginCard .alert{
+  margin-top: 4px !important; padding: 10px 12px !important;
+  border: 1px solid #f5bcbc !important; background: #ffe8e8 !important; color:#b00020 !important;
+  border-radius: 10px !important; font-weight: 700 !important; font-size: .95rem !important;
+}
+
+#loginCard .login-btn {
+  display: inline-block !important;
+  width: calc(100% - 20px) !important; /* se encoge un poquito para respirar */
+  margin: 12px auto 6px !important;
+  padding: 12px 16px !important;
+  border-radius: 999px !important;
+}
+
+
+/* === Chat más chico: input siempre visible sin scrollear la página === */
+.chat-shell{
+  height: 72vh !important;      /* achica el contenedor del chat */
+  max-height: 72vh !important;
+  margin: 12px auto !important; /* un poco menos de margen vertical */
+}
+
+.history{
+  flex: 1 1 auto !important;
+  overflow-y: auto !important;  /* el scroll se hace dentro del historial */
+  max-height: none !important;  /* deja que flex calcule el alto restante */
+  padding: 10px 12px 8px !important;
+}
+
+/* En pantallas chicas, aún más compacto */
+@media (max-height: 800px){
+  .chat-shell{
+    height: 68vh !important;
+    max-height: 68vh !important;
   }
-  #loginCard h3 { font-size: 1.2rem; }
 }
-
-/* ===== (Opcional) fuente Roboto para un look más “app” ===== */
-@supports (font-variation-settings: normal) {
-  body, input, button, label { font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
-}
-
-/* --- Fix fuerte para el botón del login --- */
-.login button {
-  all: unset;
-  display: block;
-  width: 100%;
-  text-align: center;
-  padding: 12px 14px;
-  border-radius: 10px;
-  background: #1976d2;
-  color: #fff;
-  font-weight: 700;
-  margin: 12px auto 0;
-  width: 90%;
-  max-width: 280px;
-  letter-spacing: .2px;
-  cursor: pointer;
-  box-shadow: 0 6px 20px rgba(25,118,210,.25);
-  transition: transform .06s ease, background .15s ease, box-shadow .15s ease, opacity .15s ease;
-}
-
-.login button:hover:not(:disabled) { background: #125aa0; }
-.login button:active:not(:disabled) { transform: translateY(1px); }
-.login button:disabled {
-  background: #b7bcc3;
-  color: #fff;
-  cursor: not-allowed;
-  box-shadow: none;
-  opacity: .95;
-  pointer-events: none;
-}
-
-/* chat.component.css */
-.history { max-height: 320px; overflow-y: auto; padding: 8px; }

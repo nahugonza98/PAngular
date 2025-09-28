@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ElementRef, ViewChild, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 
@@ -8,7 +8,8 @@ import {
   onAuthStateChanged,
   signInWithEmailAndPassword,
   signOut,
-  User
+  User,
+  Auth
 } from 'firebase/auth';
 import {
   ref as dbRef,
@@ -38,7 +39,7 @@ interface ChatMsg {
   templateUrl: './chat.component.html',
   styleUrls: ['./chat.component.css']
 })
-export class ChatComponent implements OnInit, OnDestroy {
+export class ChatComponent implements OnInit, OnDestroy, AfterViewInit {
   isLoggedIn = false;
   currentUid: string | null = null;
 
@@ -50,12 +51,14 @@ export class ChatComponent implements OnInit, OnDestroy {
   chats: ChatMsg[] = [];
   usersMap: UsersMap = {};
 
-  private auth: any;
+  private auth!: Auth;
   private db: Database | null = null;
 
   private authUnsub: (() => void) | null = null;
   private usersOff: (() => void) | null = null;
   private msgsOff: (() => void) | null = null;
+
+  @ViewChild('historyRef') historyRef!: ElementRef<HTMLDivElement>;
 
   constructor(private fb: FormBuilder) {
     this.loginForm = this.fb.group({
@@ -65,7 +68,6 @@ export class ChatComponent implements OnInit, OnDestroy {
     });
 
     this.form = this.fb.group({
-      username: ['', [Validators.minLength(3), Validators.maxLength(24)]],
       message: ['', [Validators.required]]
     });
   }
@@ -80,9 +82,7 @@ export class ChatComponent implements OnInit, OnDestroy {
       this.currentUid = user?.uid ?? null;
 
       if (this.isLoggedIn) {
-        // Asegurar rol por defecto en el primer ingreso de sesión
         await this.ensureDefaultRole();
-
         this.subUsers();
         this.subMensajes();
       } else {
@@ -91,6 +91,11 @@ export class ChatComponent implements OnInit, OnDestroy {
         this.chats = [];
       }
     });
+  }
+
+  ngAfterViewInit() {
+    // asegura que si ya hay mensajes, se haga scroll
+    this.scrollToBottom();
   }
 
   ngOnDestroy() {
@@ -102,11 +107,11 @@ export class ChatComponent implements OnInit, OnDestroy {
   // -------- SUBS ----------
   private subUsers() {
     if (!this.db) return;
+    const ref = dbRef(this.db, 'users');
     const cb = (snap: any) => {
       this.usersMap = snap.val() ?? {};
-      this.chats = [...this.chats]; // refresca vista para resolver nombre/rol retroactivamente
+      this.chats = [...this.chats];
     };
-    const ref = dbRef(this.db, 'users');
     onValue(ref, cb);
     this.usersOff = () => off(ref, 'value', cb);
   }
@@ -114,16 +119,21 @@ export class ChatComponent implements OnInit, OnDestroy {
 
   private subMensajes() {
     if (!this.db) return;
-    const cb = (snap: any) => {
-      const raw = snap.val() ?? {};
-      this.chats = Object.entries(raw).map(([id, m]: any) => ({
-        id,
-        uid: m.uid,
-        text: m.text,
-        timestamp: typeof m.timestamp === 'number' ? m.timestamp : Date.now()
-      }));
-    };
     const ref = query(dbRef(this.db, 'rooms/global/messages'), orderByChild('timestamp'));
+    const cb = (snap: any) => {
+      const list: ChatMsg[] = [];
+      snap.forEach((child: any) => {
+        const m = child.val();
+        list.push({
+          id: child.key as string,
+          uid: m.uid,
+          text: m.text,
+          timestamp: typeof m.timestamp === 'number' ? m.timestamp : Date.now()
+        });
+      });
+      this.chats = list;
+      this.scrollToBottom(); // auto scroll al recibir mensajes
+    };
     onValue(ref, cb);
     this.msgsOff = () => off(ref, 'value', cb);
   }
@@ -140,15 +150,14 @@ export class ChatComponent implements OnInit, OnDestroy {
       const cred = await signInWithEmailAndPassword(this.auth, email, password);
       const uid = cred.user.uid;
 
-      // displayName/email
       const alias = (username ?? '').toString().trim();
+      const payload: any = { email };
       if (alias.length >= 3 && alias.length <= 24) {
-        await update(dbRef(this.db, `users/${uid}`), { displayName: alias, email });
-      } else {
-        await update(dbRef(this.db, `users/${uid}`), { email });
+        payload.displayName = alias;
+        localStorage.setItem('chatAlias', alias);
       }
+      await update(dbRef(this.db, `users/${uid}`), payload);
 
-      // rol por defecto si falta
       await this.ensureDefaultRole(uid);
     } catch (e: any) {
       this.loginErrorMsg = e?.message ?? 'Error al iniciar sesión';
@@ -157,19 +166,15 @@ export class ChatComponent implements OnInit, OnDestroy {
     }
   }
 
-  async logout() { await signOut(this.auth); }
+  async logout() {
+    await signOut(this.auth);
+  }
 
   // -------- MENSAJES ----------
   async send() {
     if (!this.db || !this.currentUid || this.form.invalid) return;
     const message: string = (this.form.value.message ?? '').toString().trim();
     if (!message) return;
-
-    // si el usuario escribió alias, sincronizar
-    const alias = (this.form.value.username ?? '').toString().trim();
-    if (alias.length >= 3 && alias.length <= 24) {
-      await update(dbRef(this.db, `users/${this.currentUid}`), { displayName: alias });
-    }
 
     await push(dbRef(this.db, 'rooms/global/messages'), {
       uid: this.currentUid,
@@ -178,6 +183,7 @@ export class ChatComponent implements OnInit, OnDestroy {
     });
 
     this.form.patchValue({ message: '' });
+    this.scrollToBottom(); // auto scroll al enviar
   }
 
   // -------- HELPERS ----------
@@ -196,8 +202,17 @@ export class ChatComponent implements OnInit, OnDestroy {
 
     const roleSnap = await get(dbRef(this.db, `users/${uid}/role`));
     if (!roleSnap.exists()) {
-      // Reglas permiten que el propio usuario cree 'role' solo si no existe y sea 'user'
       await update(dbRef(this.db, `users/${uid}`), { role: 'user' });
     }
+  }
+
+  // -------- Auto-scroll ----------
+  private scrollToBottom() {
+    setTimeout(() => {
+      if (this.historyRef?.nativeElement) {
+        const el = this.historyRef.nativeElement;
+        el.scrollTop = el.scrollHeight;
+      }
+    }, 50); // delay corto para que Angular pinte primero
   }
 }

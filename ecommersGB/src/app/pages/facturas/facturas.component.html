@@ -1,9 +1,8 @@
 <h2 class="titulo">Facturas generadas</h2>
 
 <!-- Input de búsqueda -->
-
 <div class="toolbar">
-   <div class="buscador">
+  <div class="buscador">
     <input
       type="text"
       [(ngModel)]="filtroFactura"
@@ -16,27 +15,29 @@
   <button type="button" class="csv-btn" (click)="exportarCSV()" [disabled]="descargandoCsv">
     Exportar CSV
   </button>
-
 </div>
+
+<!-- Tabla -->
 <table class="tabla-facturas" *ngIf="facturas.length > 0; else sinDatos">
   <thead>
     <tr>
       <th>ID</th>
       <th>Fecha</th>
-      <th>Total</th>
-      <th>Total_USD</th>
+      <th>Total (ARS)</th>
+      <th>Total (USD)</th>
       <th>Cliente</th>
-
     </tr>
   </thead>
   <tbody>
     <tr *ngFor="let factura of facturas | filtroFactura:filtroFactura">
       <td>{{ factura.id }}</td>
-      <td>{{ factura.fecha | date: 'short' }}</td>
-      <td>$ {{ (factura.total || factura.total_ars) | number:'1.2-2' }}</td>
-      <td>$ {{ (factura.total_usd || factura.total_usd) | number: '1.2-2' }}</td>
+      <td>{{ factura.fechaISO | date: 'short' }}</td>
+      <td>$ {{ factura.totalARS | number: '1.2-2' }}</td>
+      <td *ngIf="factura.totalUSD != null; else sinUSD">
+        $ {{ factura.totalUSD | number: '1.2-2' }}
+      </td>
+      <ng-template #sinUSD><td>—</td></ng-template>
       <td>{{ factura.cliente_nombre || '—' }}</td>
-
     </tr>
   </tbody>
 </table>

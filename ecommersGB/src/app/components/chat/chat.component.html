@@ -1,6 +1,6 @@
 <!-- Vista de login: se muestra cuando NO estás logueado -->
 <div *ngIf="!isLoggedIn; else chatUI">
-  <div class="chat-shell" id="loginCard">
+  <div id="loginCard">
     <h3>Iniciar sesión</h3>
 
     <!-- Formulario de login -->
@@ -11,14 +11,13 @@
       <label>Contraseña</label>
       <input type="password" formControlName="password" placeholder="••••••••" />
 
+      <!-- Alias fijo (se usa para todo el chat) -->
       <label>Nombre a mostrar en el chat</label>
       <input type="text" formControlName="username" placeholder="Tu alias" />
 
-      <!-- Mensaje de error -->
       <div class="alert" *ngIf="loginErrorMsg">{{ loginErrorMsg }}</div>
 
-      <!-- Botón de enviar -->
-      <button type="submit" [disabled]="loadingLogin || loginForm.invalid">
+      <button class="login-btn" type="submit" [disabled]="loadingLogin || loginForm.invalid">
         {{ loadingLogin ? 'Ingresando…' : 'Iniciar sesión' }}
       </button>
     </form>
@@ -28,24 +27,20 @@
 <!-- Vista del chat: se muestra cuando SÍ estás logueado -->
 <ng-template #chatUI>
   <div class="chat-shell">
-    
-    <!-- Encabezado del chat -->
     <div class="chat-header">
       <div class="title">Sala global</div>
       <span class="spacer"></span>
       <button class="logout" (click)="logout()">Salir</button>
     </div>
 
-    <!-- Historial de mensajes -->
-    <div id="history" class="history">
+    <div id="history" class="history" #historyRef>
       <div
         *ngFor="let chat of chats; trackBy: trackById"
         class="msg"
         [ngClass]="{ me: chat.uid === currentUid, other: chat.uid !== currentUid }"
       >
         <div class="bubble">
-          <!-- Metadatos: nombre, rol y hora -->
-          <div class="meta">
+          <div class="msg-meta">
             <b>{{ nombreDe(chat.uid) }}</b>
             <span class="sep">·</span>
             <span class="role-badge" [ngClass]="rolDe(chat.uid)">
@@ -54,19 +49,13 @@
             <span class="sep">·</span>
             <span class="time">{{ chat.timestamp | date:'short' }}</span>
           </div>
-
-          <!-- Texto del mensaje -->
-          <div class="text">{{ chat.text }}</div>
+          <div class="msg-text">{{ chat.text }}</div>
         </div>
       </div>
     </div>
 
-    <!-- Área para escribir mensajes -->
+    <!-- Composer SIN alias -->
     <form id="message" class="composer" [formGroup]="form" (ngSubmit)="send()">
-      <!-- Alias opcional -->
-      <input type="text" formControlName="username" placeholder="Tu alias (opcional)" />
-      
-      <!-- Input + botón enviar -->
       <div class="send-box">
         <input
           type="text"
@@ -74,7 +63,7 @@
           placeholder="Escribe un mensaje…"
           autocomplete="off"
         />
-        <button type="submit" [disabled]="form.invalid || !form.value.message?.trim()">
+        <button  class="send-box" type="submit" [disabled]="form.invalid || !form.value.message?.trim()">
           Enviar
         </button>
       </div>

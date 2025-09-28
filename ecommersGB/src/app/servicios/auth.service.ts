@@ -1,14 +1,19 @@
-// src/app/servicios/auth.service.ts
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { get, ref } from 'firebase/database';
+import {
+  signInWithEmailAndPassword,
+  onAuthStateChanged,
+  User,
+  signOut,
+} from 'firebase/auth';
 import { getFirebase } from '../firebase.init';
-import { get, ref, getDatabase } from 'firebase/database';
 
 export interface AppUser {
   uid: string;
   email: string | null;
-  rol: 'admin' | 'buyer' | 'moderator' | string;
+  role: 'admin' | 'user' | 'moderator' | string;
+  displayName?: string | null;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -16,42 +21,105 @@ export class AuthService {
   private usuarioSubject = new BehaviorSubject<AppUser | null>(null);
   usuario$ = this.usuarioSubject.asObservable();
 
-  constructor() {}
+  constructor() {
+    // Rehidratar sesión desde Firebase Auth (después de recarga)
+    getFirebase().then(({ auth, database }) => {
+      onAuthStateChanged(auth, async (u) => {
+        if (!u) {
+          this.usuarioSubject.next(null);
+          if (typeof localStorage !== 'undefined') {
+            localStorage.removeItem('usuarioActual');
+          }
+          return;
+        }
 
-  async login(email: string, password: string): Promise<AppUser> {
-  const { auth, database } = await getFirebase(); // database = RTDB
+        // 🔍 Leer el rol desde RTDB (/users/{uid})
+        let role: string = 'user';
+        try {
+          const snap = await get(ref(database, `users/${u.uid}`));
+          if (snap.exists()) {
+            const data = snap.val();
+            role = data?.role ?? 'user';
+          }
+        } catch {
+          role = 'user';
+        }
 
-  const cred = await signInWithEmailAndPassword(auth, email, password);
-  const user = cred.user;
+        const usuario: AppUser = {
+          uid: u.uid,
+          email: u.email,
+          role,
+          displayName: u.displayName ?? u.email ?? ''
+        };
 
-  // 🔍 Traer datos del usuario desde RTDB (/users/{uid})
-  const dbRef = ref(database, `users/${user.uid}`);
-  const snapshot = await get(dbRef);
+        this.usuarioSubject.next(usuario);
 
-  let rol: string = 'buyer'; // Rol por defecto
-
-  if (snapshot.exists()) {
-    const data = snapshot.val();
-    rol = data.role || 'buyer'; // si no tiene campo 'role', usar 'buyer'
+        if (typeof localStorage !== 'undefined') {
+          localStorage.setItem('usuarioActual', JSON.stringify(usuario));
+        }
+      });
+    });
   }
 
-  const usuario: AppUser = {
-    uid: user.uid,
-    email: user.email,
-    rol: rol,
-  };
+  /** Login con email y password + carga de rol */
+  async login(email: string, password: string): Promise<AppUser> {
+    const { auth, database } = await getFirebase();
+    const cred = await signInWithEmailAndPassword(auth, email, password);
+    const u = cred.user;
 
-   localStorage.setItem('usuarioActual', JSON.stringify(usuario));
-  this.usuarioSubject.next(usuario);
-  return usuario;
-}
-  
+    let role: string = 'user';
+    try {
+      const snap = await get(ref(database, `users/${u.uid}`));
+      if (snap.exists()) {
+        const data = snap.val();
+        role = data?.role ?? 'user';
+      }
+    } catch {
+      role = 'user';
+    }
+
+    const usuario: AppUser = {
+      uid: u.uid,
+      email: u.email,
+      role,
+      displayName: u.displayName ?? u.email ?? ''
+    };
+
+    this.usuarioSubject.next(usuario);
+
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem('usuarioActual', JSON.stringify(usuario));
+    }
+
+    return usuario;
+  }
+
+  /** Logout general */
   logout(): void {
     this.usuarioSubject.next(null);
-    localStorage.removeItem('usuarioActual');
+
+    if (typeof localStorage !== 'undefined') {
+      localStorage.removeItem('usuarioActual');
+    }
+
+    // Descomentá si querés cerrar sesión Firebase también:
+    // getFirebase().then(({ auth }) => signOut(auth));
   }
 
+  /** Devuelve el usuario actual (sincrónico) */
   getUsuarioActual(): AppUser | null {
     return this.usuarioSubject.value;
+  }
+
+  /** Devuelve el usuario de Firebase (asincrónico) */
+  async getCurrentAuthUser(): Promise<User | null> {
+    const { auth } = await getFirebase();
+    if (auth.currentUser) return auth.currentUser;
+    return new Promise<User | null>((resolve) => {
+      const off = onAuthStateChanged(auth, (u) => {
+        off(); // desuscribir
+        resolve(u);
+      });
+    });
   }
 }

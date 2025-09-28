@@ -54,18 +54,6 @@ export class FinalizarCompraComponent implements OnInit {
   async confirmarCompra(payload: InvoicePayload): Promise<void> {
     console.log('[Padre] Recibí payload:', payload);
 
-    const u = JSON.parse(
-      localStorage.getItem('usuario') ||
-      localStorage.getItem('usuarioActual') ||
-      'null'
-    );
-
-    if (u?.id && u?.email) {
-      payload.cliente_id = Number(u.id);
-      payload.cliente_email = String(u.email);
-      payload.cliente_nombre = String(u.nombre || u.email);
-    }
-
     if (!payload || !payload.items?.length) {
       alert('No hay ítems para facturar.');
       return;
@@ -76,16 +64,11 @@ export class FinalizarCompraComponent implements OnInit {
       return;
     }
 
-    // 🔹 Adaptamos a lo que espera guardarFacturaEnRTDB:
+    // 🔹 Adaptamos a lo que espera crearFactura():
     const facturaAdaptada = {
       totalARS: payload.total_ars,
       totalUSD: payload.total_usd,
       tipo_cambio: payload.tipo_cambio,
-      estado: 'PAGADA' as const, // valor fijo por ahora
-      cliente: {
-        id: payload.cliente_id,
-        nombre: payload.cliente_nombre
-      },
       items: payload.items.map(item => ({
         producto_id: item.producto_id ?? 0,
         producto_nombre: item.producto_nombre,
@@ -98,7 +81,8 @@ export class FinalizarCompraComponent implements OnInit {
     this.guardando = true;
 
     try {
-      const res = await this.facturaService.guardarFacturaEnRTDB(facturaAdaptada);
+      // ✅ Usamos el método nuevo del servicio
+      const res = await this.facturaService.crearFactura(facturaAdaptada);
       console.log('✅ Factura guardada:', res);
 
       this.carritoService.vaciarCarrito();
