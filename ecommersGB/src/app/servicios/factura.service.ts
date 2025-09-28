@@ -78,39 +78,39 @@ export class FacturaService {
   }
 
   /** Crea una factura tomando SIEMPRE el usuario actual */
- async crearFactura(payload: {
-  items: FacturaItem[];
-  totalARS: number;
-  totalUSD: number | null;
-  tipo_cambio: number | null;
-}): Promise<string> {
-  const now = Date.now();
-  const id = `${now}-${Math.random().toString(36).slice(2, 8)}`;
+  async crearFactura(payload: {
+    items: FacturaItem[];
+    totalARS: number;
+    totalUSD: number | null;
+    tipo_cambio: number | null;
+  }): Promise<string> {
+    const now = Date.now();
+    const id = `${now}-${Math.random().toString(36).slice(2, 8)}`;
 
-  // 🔄 Esperar a que se resuelva el usuario actual
-  const usuario = await this.auth.getUsuarioActual();
+    // 🔄 Esperar a que se resuelva el usuario actual
+    const usuario = await this.auth.getUsuarioActual();
 
-  const userId = usuario?.uid ?? null;
-  const cliente_email = usuario?.email ?? null;
-  const cliente_nombre = usuario?.displayName ?? usuario?.email ?? null;
+    const userId = usuario?.uid ?? null;
+    const cliente_email = usuario?.email ?? null;
+    const cliente_nombre = usuario?.displayName ?? usuario?.email ?? null;
 
-  const factura: Omit<FacturaRTDB, 'id'> = {
-    ts: now,
-    fechaISO: new Date(now).toISOString(),
-    totalARS: payload.totalARS,
-    totalUSD: payload.totalUSD,
-    tipo_cambio: payload.tipo_cambio,
-    estado: 'PAGADA',
-    userId,
-    cliente_email,
-    cliente_nombre,
-    items: payload.items ?? [],
-  };
+    const factura: Omit<FacturaRTDB, 'id'> = {
+      ts: now,
+      fechaISO: new Date(now).toISOString(),
+      totalARS: payload.totalARS,
+      totalUSD: payload.totalUSD,
+      tipo_cambio: payload.tipo_cambio,
+      estado: 'PAGADA',
+      userId,
+      cliente_email,
+      cliente_nombre,
+      items: payload.items ?? [],
+    };
 
-  const { database } = await getFirebase();
-  await set(ref(database, `${this.ROOT}/${id}`), factura);
-  return id;
-}
+    const { database } = await getFirebase();
+    await set(ref(database, `${this.ROOT}/${id}`), factura);
+    return id;
+  }
 
   /** Actualiza el estado de una factura */
   async actualizarEstado(id: string, estado: EstadoFactura): Promise<void> {
@@ -118,7 +118,7 @@ export class FacturaService {
     await update(ref(database, `${this.ROOT}/${id}`), { estado });
   }
 
-  /** CSV simple para exportar */
+  /** CSV simple para exportar (incluye columna Detalle) */
   generarCSVDesdeFacturas(facturas: FacturaRTDB[]): Blob {
     const headers = [
       'ID',
@@ -129,6 +129,7 @@ export class FacturaService {
       'Estado',
       'Cliente_Email',
       'Cliente_Nombre',
+      'Detalle', // <- NUEVA COLUMNA
     ];
 
     const rows = facturas.map((f) => [
@@ -140,6 +141,7 @@ export class FacturaService {
       f.estado,
       f.cliente_email ?? '',
       f.cliente_nombre ?? '',
+      this.buildDetalle(f), // <- TEXTO CONCATENADO DE ITEMS
     ]);
 
     const csv = [headers, ...rows]
@@ -156,19 +158,23 @@ export class FacturaService {
     }
     return s;
   }
+
   private formatFechaLocal(ts: number): string {
     try { return new Date(ts).toLocaleString(); } catch { return ''; }
   }
+
   private formatMoneyARS(n: number): string {
     try {
       return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 2 }).format(n);
     } catch { return String(n); }
   }
+
   private formatMoneyUSD(n: number): string {
     try {
       return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 }).format(n);
     } catch { return String(n); }
   }
+
   private mapFactura(id: string, f: any): FacturaRTDB {
     return {
       id,
@@ -183,5 +189,30 @@ export class FacturaService {
       cliente_nombre: f?.cliente_nombre ?? null,
       items: f?.items ?? undefined,
     };
+  }
+
+  /** Arma el texto "Detalle" a partir de los items de la factura */
+  private buildDetalle(f: FacturaRTDB): string {
+    const items = Array.isArray(f?.items) ? f.items : [];
+    if (!items.length) return '';
+
+    const fmt = (n: any) => {
+      const x = Number(n);
+      return isNaN(x) ? '' : x.toFixed(2);
+    };
+
+    // FacturaItem: producto_nombre, cantidad, precio_unitario, subtotal_ars
+    return items
+      .map((it) => {
+        const nombre = it.producto_nombre ?? '(sin nombre)';
+        const cantidad = Number(it.cantidad ?? 1);
+        const unit = Number(it.precio_unitario ?? 0);
+        const subtotal =
+          it.subtotal_ars != null ? Number(it.subtotal_ars) : unit * (isNaN(cantidad) ? 0 : cantidad);
+        const subTxt = isNaN(subtotal) ? '' : subtotal.toFixed(2);
+
+        return `${nombre} x${isNaN(cantidad) ? '' : cantidad} @${fmt(unit)} = ${subTxt}`;
+      })
+      .join(' | ');
   }
 }
