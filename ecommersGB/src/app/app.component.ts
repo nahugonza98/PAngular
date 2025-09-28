@@ -25,6 +25,5 @@ export class AppComponent implements OnInit {
 
     // ⚠️ Solo inicializamos Firebase; NO login anónimo.
     // No uses await en ngOnInit; no hace falta bloquear la UI.
-    this.authSvc.ready().catch((err) => console.error('Firebase init error:', err));
   }
 }

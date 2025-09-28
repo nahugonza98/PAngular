@@ -13,34 +13,43 @@ import { ProductosService, Producto } from '../../servicios/productos.service';
 })
 export class AltaProductoComponent {
   producto: Partial<Producto> = {
-  nombre: '',
-  descripcion: '',
-  precio: 0,
-  stock: 0,
-  imagen: ''
-};
-
+    nombre: '',
+    descripcion: '',
+    precio: 0,
+    stock: 0,
+    imagen: ''
+  };
 
   mensaje = '';
+  guardando = false;
 
-  constructor(private productosService: ProductosService, private router: Router) {}
+  constructor(
+    private productosService: ProductosService,
+    private router: Router
+  ) {}
 
-  crearProducto() {
+  async crearProducto() {
+    this.guardando = true;
+    this.mensaje = '';
 
-      console.log('Producto a guardar:', this.producto); 
+    try {
+      console.log('Producto a guardar:', this.producto);
 
-    this.productosService.crearProducto(this.producto).subscribe({
-      next: () => {
-        this.mensaje = 'Producto creado correctamente';
-        setTimeout(() => {
-          this.mensaje = '';
-          this.router.navigate(['/productos']);
-        }, 2000);
-      },
-      error: (err) => {
-        this.mensaje = 'Error al crear el producto';
-        console.error(err);
-      }
-    });
+      const id = await this.productosService.crearProducto(this.producto);
+      console.log('✅ Producto creado con ID:', id);
+
+      this.mensaje = 'Producto creado correctamente';
+
+      setTimeout(() => {
+        this.mensaje = '';
+        this.router.navigate(['/productos']);
+      }, 2000);
+
+    } catch (err) {
+      console.error('❌ Error al crear el producto:', err);
+      this.mensaje = 'Error al crear el producto';
+    } finally {
+      this.guardando = false;
+    }
   }
 }

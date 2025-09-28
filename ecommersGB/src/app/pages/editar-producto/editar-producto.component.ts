@@ -9,8 +9,7 @@ import { Producto, ProductosService } from '../../servicios/productos.service';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './editar-producto.component.html',
-  styleUrls: ['./editar-producto.component.css'],
-
+  styleUrls: ['./editar-producto.component.css']
 })
 export class EditarProductoComponent implements OnInit {
   producto: Producto = {
@@ -23,33 +22,51 @@ export class EditarProductoComponent implements OnInit {
   };
 
   mensaje = '';
+  cargando = false;
+  guardando = false;
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private productosService: ProductosService
-  ) { }
+  ) {}
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
+    this.cargando = true;
     const id = Number(this.route.snapshot.paramMap.get('id'));
-    this.productosService.obtenerProductoPorId(id).subscribe((data) => {
-      this.producto = data;
-    });
+
+    try {
+      const data = await this.productosService.obtenerProductoPorId(id);
+      if (data) {
+        this.producto = data;
+      } else {
+        this.mensaje = 'Producto no encontrado';
+      }
+    } catch (error) {
+      console.error('Error al cargar producto:', error);
+      this.mensaje = 'Error al cargar el producto';
+    } finally {
+      this.cargando = false;
+    }
   }
 
-  guardarCambios() {
-    this.productosService.actualizarProducto(this.producto).subscribe({
-      next: () => {
-        this.mensaje = 'Producto actualizado correctamente';
-        setTimeout(() => {
-          this.mensaje = '';
-          this.router.navigate(['/productos']);
-        }, 2000);
-      },
-      error: (err) => {
-        this.mensaje = 'Error al actualizar';
-        console.error(err);
-      }
-    });
+  async guardarCambios(): Promise<void> {
+    this.guardando = true;
+    this.mensaje = '';
+
+    try {
+      await this.productosService.actualizarProducto(this.producto);
+      this.mensaje = 'Producto actualizado correctamente';
+
+      setTimeout(() => {
+        this.mensaje = '';
+        this.router.navigate(['/productos']);
+      }, 2000);
+    } catch (error) {
+      console.error('Error al actualizar producto:', error);
+      this.mensaje = 'Error al actualizar el producto';
+    } finally {
+      this.guardando = false;
+    }
   }
 }

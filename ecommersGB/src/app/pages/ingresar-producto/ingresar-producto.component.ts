@@ -1,50 +1,62 @@
+// src/app/pages/ingresar-producto/ingresar-producto.component.ts
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
+import { ProductosService, Producto } from '../../servicios/productos.service';
 
 @Component({
-  selector: 'app-ingresar-producto',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  selector: 'app-ingresar-producto',
   templateUrl: './ingresar-producto.component.html',
-  styleUrls: ['./ingresar-producto.component.css']
+  styleUrls: ['./ingresar-producto.component.css'],
+  imports: [CommonModule, ReactiveFormsModule],
 })
 export class IngresarProductoComponent {
-  formulario!: FormGroup;
+  formulario: FormGroup;
   mensaje = '';
+  guardando = false;
 
-  constructor(private fb: FormBuilder, private http: HttpClient) {
+  constructor(
+    private fb: FormBuilder,
+    private productosSrv: ProductosService,
+    private router: Router
+  ) {
     this.formulario = this.fb.group({
-      nombre: ['', Validators.required],
-      precio: [null, [Validators.required, Validators.min(1)]],
-      imagen: ['', Validators.required],
-      descripcion: ['']
+      nombre: ['', [Validators.required, Validators.minLength(2)]],
+      precio: [null, [Validators.required, Validators.min(0.01)]],
+      imagen: ['', [Validators.required]],
+      descripcion: [''],
+      stock: [0, [Validators.min(0)]],
     });
   }
-  
-campoInvalido(campo: string): boolean {
-  const control = this.formulario.get(campo);
-  return !!(control && control.invalid && (control.dirty || control.touched));
-}
 
-  guardarProducto() {
+  campoInvalido(nombre: string): boolean {
+    const c = this.formulario.get(nombre);
+    return !!c && c.invalid && (c.dirty || c.touched);
+  }
+
+  async guardarProducto(): Promise<void> {
+    this.mensaje = '';
     if (this.formulario.invalid) {
-      this.mensaje = '⚠️ Completá todos los campos requeridos.';
+      this.formulario.markAllAsTouched();
       return;
     }
 
-    const producto = this.formulario.value;
+    this.guardando = true;
+    const payload: Partial<Producto> = this.formulario.value;
 
-    this.http.post('http://localhost:4000/api/productos', producto).subscribe({
-      next: () => {
-        this.mensaje = '✅ Producto guardado con éxito.';
-        this.formulario.reset();
-      },
-      error: (err) => {
-        console.error(err);
-        this.mensaje = '❌ Error al guardar el producto.';
-      }
-    });
+    try {
+      const nuevoId = await this.productosSrv.crearProducto(payload);
+      this.mensaje = `✅ Producto creado (ID ${nuevoId}).`;
+      // si querés redirigir:
+      // await this.router.navigate(['/productos']);
+      this.formulario.reset();
+    } catch (e) {
+      console.error('Error al crear producto en RTDB', e);
+      this.mensaje = '❌ No se pudo crear el producto.';
+    } finally {
+      this.guardando = false;
+    }
   }
 }

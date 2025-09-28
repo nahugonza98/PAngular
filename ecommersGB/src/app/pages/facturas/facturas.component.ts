@@ -1,49 +1,63 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
-import { FiltroFacturaPipe } from '../pipes/filtro-factura.pipe'; 
-import { FacturaService } from '../../servicios/factura.service'; 
+import { Subscription } from 'rxjs';
 
-interface Factura {
-  id: number;
-  fecha: string;
-  total: number;
-}
+import { FacturaService, FacturaRTDB } from '../../servicios/factura.service';
+import { FiltroNombrePipe } from '../../pages/pipes/filtro-nombre.pipe';
+import { FiltroFacturaPipe } from '../../pages/pipes/filtro-factura.pipe';
 
 @Component({
   selector: 'app-facturas',
   standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,          
-    FiltroFacturaPipe     
-  ],
+  imports: [CommonModule, FormsModule, FiltroFacturaPipe],
   templateUrl: './facturas.component.html',
   styleUrls: ['./facturas.component.css']
 })
-export class FacturasComponent implements OnInit {
-  facturas: Factura[] = [];
-  filtroFactura = ''; 
+export class FacturasComponent implements OnInit, OnDestroy {
+
+  facturasRaw: FacturaRTDB[] = [];
+  facturas: Array<{
+    id: string;
+    fecha: Date | null;
+    total: number;
+    total_ars: number;
+    total_usd: number | null;
+    cliente_nombre: string;
+  }> = [];
+
+  filtroFactura = '';
   descargandoCsv = false;
-  constructor(private http: HttpClient,  private facturaService: FacturaService ) {}
+  private sub?: Subscription;
+
+  constructor(private facturasSrv: FacturaService) {}
 
   ngOnInit(): void {
-    this.http.get<Factura[]>('http://localhost:4000/facturas').subscribe({
-      next: (res) => {
-        this.facturas = res;
-        console.log('📄 Facturas cargadas:', res);
-      },
-      error: (err) => {
-        console.error('❌ Error al cargar facturas:', err);
-      }
+    // Opción simple: traer todas las facturas
+    this.sub = this.facturasSrv.obtenerFacturas$().subscribe((list) => {
+      this.facturasRaw = list;
+      this.facturas = list.map((f) => ({
+        id: f.id,
+        fecha: f.ts ? new Date(f.ts) : (f.fechaISO ? new Date(f.fechaISO) : null),
+        total: f.totalARS,
+        total_ars: f.totalARS,
+        total_usd: f.totalUSD ?? null,
+        cliente_nombre: f.cliente?.nombre ?? '—',
+      }));
     });
+
+    // Si querés probar por un día que seguro tiene datos:
+    // this.sub = this.facturasSrv.obtenerFacturasPorDia$('2025-06-18').subscribe(...);
+  }
+
+  ngOnDestroy(): void {
+    this.sub?.unsubscribe();
   }
 
   exportarCSV() {
-  this.descargandoCsv = true;
-  this.facturaService.descargarFacturasCSV().subscribe({
-    next: (blob) => {
+    this.descargandoCsv = true;
+    try {
+      const blob = this.facturasSrv.generarCSVDesdeFacturas(this.facturasRaw);
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -52,23 +66,8 @@ export class FacturasComponent implements OnInit {
       a.click();
       a.remove();
       URL.revokeObjectURL(url);
-    },
-    error: (err) => {
-      console.error('❌ Error al exportar CSV:', err);
-      alert('No se pudo generar el CSV.');
-    },
-    complete: () => (this.descargandoCsv = false),
-  });
-}
-
-
-
-
-
-
-
-
-
-
-
+    } finally {
+      this.descargandoCsv = false;
+    }
+  }
 }

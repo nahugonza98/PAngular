@@ -24,7 +24,7 @@ interface InvoicePayload {
   cliente_nombre: string | null;
   tipo_cambio: number;
   total_ars: number;
-   cliente_email?: string | null;
+  cliente_email?: string | null;
   total_usd: number;
   items: InvoiceItemPayload[];
 }
@@ -51,49 +51,65 @@ export class FinalizarCompraComponent implements OnInit {
   }
 
   // Recibe el objeto emitido por <app-factura-preview (confirmarCompra)="confirmarCompra($event)">
-  confirmarCompra(payload: InvoicePayload) {
+  async confirmarCompra(payload: InvoicePayload): Promise<void> {
     console.log('[Padre] Recibí payload:', payload);
-    const u = JSON.parse(localStorage.getItem('usuario') || localStorage.getItem('usuarioActual') || 'null');
 
-
-    // Validaciones mínimas antes de guardar
+    const u = JSON.parse(
+      localStorage.getItem('usuario') ||
+      localStorage.getItem('usuarioActual') ||
+      'null'
+    );
 
     if (u?.id && u?.email) {
-    payload.cliente_id = Number(u.id);
-    payload.cliente_email = String(u.email);
-    payload.cliente_nombre = String(u.nombre || u.email);
-/*     payload.cliente_nombre = payload.cliente_nombre || (u.nombre || u.email);
- */  }
+      payload.cliente_id = Number(u.id);
+      payload.cliente_email = String(u.email);
+      payload.cliente_nombre = String(u.nombre || u.email);
+    }
 
     if (!payload || !payload.items?.length) {
       alert('No hay ítems para facturar.');
       return;
     }
+
     if (!payload.tipo_cambio || payload.tipo_cambio <= 0) {
       alert('No se pudo obtener la cotización del dólar. Intenta nuevamente.');
       return;
     }
 
+    // 🔹 Adaptamos a lo que espera guardarFacturaEnRTDB:
+    const facturaAdaptada = {
+      totalARS: payload.total_ars,
+      totalUSD: payload.total_usd,
+      tipo_cambio: payload.tipo_cambio,
+      estado: 'PAGADA' as const, // valor fijo por ahora
+      cliente: {
+        id: payload.cliente_id,
+        nombre: payload.cliente_nombre
+      },
+      items: payload.items.map(item => ({
+        producto_id: item.producto_id ?? 0,
+        producto_nombre: item.producto_nombre,
+        cantidad: item.cantidad,
+        precio_unitario: item.precio_unit_ars,
+        subtotal_ars: item.subtotal_ars
+      }))
+    };
+
     this.guardando = true;
 
-    this.facturaService.guardarFactura(payload).subscribe({
-      next: (res) => {
-        console.log('✅ Factura guardada:', res);
-        // Limpiar carrito y UI
-        this.carritoService.vaciarCarrito();
-        this.productosSeleccionados = [];
-        alert('✅ Compra finalizada con éxito');
+    try {
+      const res = await this.facturaService.guardarFacturaEnRTDB(facturaAdaptada);
+      console.log('✅ Factura guardada:', res);
 
-        // Redirigir al inicio o a la lista de facturas
-        setTimeout(() => this.router.navigate(['/']), 800);
-      },
-      error: (err) => {
-  console.error('❌ Error guardando factura:', err?.error || err);
-  alert(err?.error?.message || '❌ Hubo un error al guardar la factura');
-},
-      complete: () => {
-        this.guardando = false;
-      }
-    });
+      this.carritoService.vaciarCarrito();
+      this.productosSeleccionados = [];
+
+      setTimeout(() => this.router.navigate(['/']), 800);
+    } catch (err: any) {
+      console.error('❌ Error guardando factura:', err?.error || err);
+      alert(err?.error?.message || '❌ Hubo un error al guardar la factura');
+    } finally {
+      this.guardando = false;
+    }
   }
 }

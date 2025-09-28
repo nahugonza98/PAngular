@@ -33,9 +33,13 @@ export class ProductosComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // Cargar productos
+    // Cargar productos desde Firebase RTDB
     this.productosService.obtenerProductos().subscribe((data) => {
-      this.productos = data;
+      // fallback de stock en 0 si viene null
+      this.productos = data.map(p => ({
+        ...p,
+        stock: p.stock ?? 0
+      }));
     });
 
     // Cargar usuario actual desde localStorage
@@ -65,12 +69,16 @@ export class ProductosComponent implements OnInit {
     this.mostrarModalEliminar = false;
   }
 
-  eliminarConfirmado() {
-    if (this.idProductoAEliminar !== null) {
-      this.productosService.eliminarProducto(this.idProductoAEliminar).subscribe(() => {
-        this.productos = this.productos.filter(p => p.id !== this.idProductoAEliminar);
-        this.mostrarModalEliminar = false;
-      });
+ async eliminarConfirmado() {
+  if (this.idProductoAEliminar !== null) {
+    try {
+      await this.productosService.eliminarProducto(this.idProductoAEliminar);
+      this.productos = this.productos.filter(p => p.id !== this.idProductoAEliminar);
+      this.mostrarModalEliminar = false;
+    } catch (e) {
+      console.error('Error eliminando producto en RTDB', e);
+      alert('No se pudo eliminar el producto.');
     }
   }
+}
 }

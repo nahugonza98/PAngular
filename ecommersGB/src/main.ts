@@ -4,6 +4,7 @@ import { provideAnimations } from '@angular/platform-browser/animations';
 import { AppComponent } from './app/app.component';
 import { routes } from './app/app.routes';
 import { provideHttpClient } from '@angular/common/http'; // Asegura que HttpClient esté disponible
+
 const appConfig = {
   providers: [
     provideRouter(routes),
