@@ -24,6 +24,7 @@ export class AuthService {
   constructor() {
     // Rehidratar sesión desde Firebase Auth (después de recarga)
     getFirebase().then(({ auth, database }) => {
+      // Escuchar cambios de estado de autenticación 
       onAuthStateChanged(auth, async (u) => {
         if (!u) {
           this.usuarioSubject.next(null);

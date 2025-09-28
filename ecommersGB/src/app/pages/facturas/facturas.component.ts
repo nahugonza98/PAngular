@@ -34,6 +34,9 @@ export class FacturasComponent implements OnInit, OnDestroy {
     this.sub?.unsubscribe();
   }
 
+
+  // Exportacion CSV
+  //Genera factura, te permite descargar y luego limpia 
   exportarCSV(): void {
     if (!this.facturas?.length) return;
     this.descargandoCsv = true;

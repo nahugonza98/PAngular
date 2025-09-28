@@ -72,6 +72,8 @@ export class EstadisticasComponent implements AfterViewInit {
       const labels = Object.keys(agrupadas).sort();
       const data   = labels.map(k => agrupadas[k]);
 
+      // ---- Graficar  
+      // Destruir si ya existía
       if (this.chartVentas) this.chartVentas.destroy();
       this.chartVentas = new Chart(this.ventasChartRef.nativeElement, {
         type: 'bar',

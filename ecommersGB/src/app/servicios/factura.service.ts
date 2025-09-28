@@ -118,8 +118,10 @@ export class FacturaService {
     await update(ref(database, `${this.ROOT}/${id}`), { estado });
   }
 
-  /** CSV simple para exportar (incluye columna Detalle) */
+  /** CSV simple para exportar */
   generarCSVDesdeFacturas(facturas: FacturaRTDB[]): Blob {
+
+    //Columna del CSV
     const headers = [
       'ID',
       'Fecha',
@@ -129,9 +131,10 @@ export class FacturaService {
       'Estado',
       'Cliente_Email',
       'Cliente_Nombre',
-      'Detalle', // <- NUEVA COLUMNA
+      'Detalle',
     ];
 
+    // Cada fila es un array de strings/valores
     const rows = facturas.map((f) => [
       f.id,
       this.formatFechaLocal(f.ts),
@@ -141,9 +144,14 @@ export class FacturaService {
       f.estado,
       f.cliente_email ?? '',
       f.cliente_nombre ?? '',
-      this.buildDetalle(f), // <- TEXTO CONCATENADO DE ITEMS
+      this.buildDetalle(f), // Detalle armado a partir de items
     ]);
 
+    // Construcción del CSV
+    // - Escapando valores que lo requieran (", \n, ,)
+    // - Uniendo con comas
+    // - Uniendo filas con saltos de línea
+    // - Blob con tipo text/csv
     const csv = [headers, ...rows]
       .map((r) => r.map((v) => this.csvEscape(String(v ?? ''))).join(','))
       .join('\n');

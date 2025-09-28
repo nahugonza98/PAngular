@@ -23,7 +23,7 @@ export class ChatService {
    * Usa el `preferred` EXACTO que vos pases (respetando mayúsculas/minúsculas).
    */
   async ensureUserProfile(preferred?: string): Promise<string> {
-    const { auth, db } = await getFirebase();
+    const { auth, database } = await getFirebase();
     const u = auth.currentUser;
     if (!u) throw new Error('No hay usuario autenticado');
 
@@ -34,7 +34,7 @@ export class ChatService {
       (u.displayName?.slice(0, 40)) ||
       (email ? email.split('@')[0].slice(0, 40) : `Usuario${uid.slice(0, 6)}`);
 
-    const userRef = ref(db, `users/${uid}`);
+    const userRef = ref(database, `users/${uid}`);
     const snap = await get(userRef);
 
     if (!snap.exists() || !snap.val()?.username) {
@@ -53,23 +53,23 @@ export class ChatService {
    * (No crea nada acá para evitar condiciones de carrera).
    */
   async getCurrentAlias(): Promise<string | null> {
-    const { auth, db } = await getFirebase();
+    const { auth, database } = await getFirebase();
     const uid = auth.currentUser?.uid;
     if (!uid) return null;
-    const snap = await get(ref(db, `users/${uid}/username`));
+    const snap = await get(ref(database, `users/${uid}/username`));
     return snap.exists() ? snap.val() : null;
   }
 
   /** Actualiza el alias exactamente como lo escribas (una vez logueado). */
   async updateAlias(newAlias: string): Promise<string> {
-    const { auth, db } = await getFirebase();
+    const { auth, database } = await getFirebase();
     const u = auth.currentUser;
     if (!u) throw new Error('No hay usuario autenticado');
 
     const clean = (newAlias || '').trim().slice(0, 40);
     if (!clean) throw new Error('Alias inválido');
 
-    await set(ref(db, `users/${u.uid}/username`), clean);
+    await set(ref(database, `users/${u.uid}/username`), clean);
     return clean;
   }
 
@@ -77,7 +77,7 @@ export class ChatService {
   async sendMessage(roomId: string, text: string): Promise<void> {
     if (typeof window === 'undefined') return;
 
-    const { auth, db } = await getFirebase();
+    const { auth, database } = await getFirebase();
     const user = auth.currentUser;
     if (!user) throw new Error('No hay usuario autenticado');
 
@@ -85,7 +85,7 @@ export class ChatService {
     let alias = await this.getCurrentAlias();
     if (!alias) alias = await this.ensureUserProfile();
 
-    await push(ref(db, `rooms/${roomId}/messages`), {
+    await push(ref(database, `rooms/${roomId}/messages`), {
       uid: user.uid,
       username: alias,
       text: (text || '').trim(),
@@ -97,8 +97,8 @@ export class ChatService {
   getMessages(roomId: string, lastN: number = 200): Observable<ChatMessage[]> {
     return new Observable<ChatMessage[]>((observer) => {
       if (typeof window === 'undefined') { observer.next([]); observer.complete(); return; }
-      getFirebase().then(({ db }) => {
-        const q = query(ref(db, `rooms/${roomId}/messages`), orderByChild('timestamp'), limitToLast(lastN));
+      getFirebase().then(({ database }) => {
+        const q = query(ref(database, `rooms/${roomId}/messages`), orderByChild('timestamp'), limitToLast(lastN));
         const off = onValue(q, (snap) => {
           const raw = snap.val() || {};
           const list: ChatMessage[] = Object.keys(raw).map((k) => ({ id: k, ...raw[k] }));
